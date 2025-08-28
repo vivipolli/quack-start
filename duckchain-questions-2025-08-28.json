@@ -1,0 +1,54 @@
+{
+  "scrapedAt": "2025-08-28T21:30:45.122Z",
+  "totalMessages": 338,
+  "questions": [
+    {
+      "question": "How can I bridge TON tokens to the DuckChain network?",
+      "frequency": 7,
+      "category": "intermediate",
+      "confidence": 0.9
+    },
+    {
+      "question": "What is the current market value of the DUCK token?",
+      "frequency": 4,
+      "category": "basic",
+      "confidence": 0.9
+    },
+    {
+      "question": "What are the steps to acquire $DUCK tokens?",
+      "frequency": 3,
+      "category": "basic",
+      "confidence": 0.8
+    },
+    {
+      "question": "What is the process for unstaking my tokens on DuckChain?",
+      "frequency": 3,
+      "category": "intermediate",
+      "confidence": 0.8
+    },
+    {
+      "question": "Is there an ambassador program currently open for new applications?",
+      "frequency": 1,
+      "category": "basic",
+      "confidence": 0.7
+    },
+    {
+      "question": "Does DuckChain provide a guide for bridging assets?",
+      "frequency": 1,
+      "category": "intermediate",
+      "confidence": 0.7
+    },
+    {
+      "question": "What are the available features within the DuckChain ecosystem?",
+      "frequency": 1,
+      "category": "basic",
+      "confidence": 0.75
+    },
+    {
+      "question": "What blockchain concepts are essential for understanding DuckChain?",
+      "frequency": 1,
+      "category": "advanced",
+      "confidence": 0.75
+    }
+  ]
+}

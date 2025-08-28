@@ -1,5 +1,7 @@
 const { translations } = require('./translations');
 const { onboardingQuestions, getQuestionText, getQuestionsByCategory } = require('./onboarding-questions');
+const fs = require('fs');
+const path = require('path');
 
 function getTranslation(key: string, language: string): string {
   const translation = translations[key];
@@ -41,10 +43,79 @@ class OnboardingService {
   }
 
   private get questions(): OnboardingQuestion[] {
+    // Sempre incluir a pergunta fundamental sobre DuckChain
+    const fundamentalQuestion = onboardingQuestions.find((q: OnboardingQuestion) => q.id === 'what_is_duckchain');
+    
+    // Tentar carregar perguntas dinâmicas
+    const dynamicQuestions = this.loadDynamicQuestions();
+    
+    if (dynamicQuestions.length > 0 && fundamentalQuestion) {
+      // Combinar pergunta fundamental com perguntas dinâmicas
+      return [fundamentalQuestion, ...dynamicQuestions];
+    } else if (dynamicQuestions.length > 0) {
+      return dynamicQuestions;
+    }
+    
+    // Fallback para perguntas estáticas
     return onboardingQuestions;
   }
 
-  startOnboarding(userId: number, userType: 'blockchain_beginner' | 'duckchain_new' | 'experienced', language: string = 'EN'): { message: string; keyboard: any } {
+  // Método específico para obter perguntas avançadas hardcoded
+  getAdvancedQuestions(): OnboardingQuestion[] {
+    return onboardingQuestions.filter((q: OnboardingQuestion) => q.category === 'advanced');
+  }
+
+  private loadDynamicQuestions(): OnboardingQuestion[] {
+    try {
+      // Procurar pelo arquivo mais recente
+      const files = fs.readdirSync('.').filter((file: string) => file.startsWith('duckchain-questions-') && file.endsWith('.json'));
+      if (files.length === 0) {
+        return [];
+      }
+      
+      // Pegar o arquivo mais recente
+      const latestFile = files.sort().pop();
+      const data = JSON.parse(fs.readFileSync(latestFile, 'utf8'));
+      
+      // Converter para o formato OnboardingQuestion
+      return data.questions.map((q: any, index: number) => ({
+        id: `dynamic_${index}`,
+        category: q.category,
+        question: {
+          PT: q.question, // Será traduzido pela IA
+          ES: q.question, // Será traduzido pela IA
+          EN: q.question,
+          HI: q.question, // Será traduzido pela IA
+          default: q.question
+        }
+      }));
+    } catch (error) {
+      console.error('Error loading dynamic questions:', error);
+      return [];
+    }
+  }
+
+  private async translateQuestion(question: string, language: string): Promise<string> {
+    if (language === 'EN') {
+      return question; // Já está em inglês
+    }
+    
+    try {
+      const translation = await this.openRouterService.chat([
+        { 
+          role: 'user', 
+          content: `Translate this question to ${language === 'PT' ? 'Portuguese' : language === 'ES' ? 'Spanish' : 'Hindi'}. Keep it natural and conversational:\n\n"${question}"` 
+        }
+      ], 'openai/gpt-4o-mini');
+      
+      return translation.trim();
+    } catch (error) {
+      console.error('Error translating question:', error);
+      return question; // Fallback para original
+    }
+  }
+
+  async startOnboarding(userId: number, userType: 'blockchain_beginner' | 'duckchain_new' | 'experienced', language: string = 'EN'): Promise<{ message: string; keyboard: any }> {
     const userState: UserOnboardingState = {
       userId,
       currentStep: 0,
@@ -65,6 +136,14 @@ class OnboardingService {
     }
     
     let message = `🎓 ${getTranslation('onboardingTitleBasic', language)}\n`;
+    
+    // Traduzir perguntas dinâmicas se necessário
+    for (const question of basicQuestions) {
+      if (question.id.startsWith('dynamic_')) {
+        const translatedQuestion = await this.translateQuestion(question.question.EN, language);
+        question.question[language as keyof typeof question.question] = translatedQuestion;
+      }
+    }
     
     basicQuestions.forEach((question, index) => {
       message += `${index + 1}. ${getQuestionText(question, language)}\n`;
@@ -132,11 +211,14 @@ class OnboardingService {
     return {
       inline_keyboard: [
         [
-          { text: getTranslation('goMiniAppButton', language), callback_data: 'go_miniapp' },
+          { text: getTranslation('goMiniAppButton', language), url: 'https://t.me/DuckChain_bot' },
           { text: getTranslation('skipQuestionButton', language), callback_data: 'skip_question' }
         ],
         [
           { text: getTranslation('nftQuizButton', language), callback_data: 'start_nft_quiz' }
+        ],
+        [
+          { text: getTranslation('officialDocsButton', language), url: 'https://diary.duckchain.io/' }
         ]
       ]
     };
@@ -159,11 +241,15 @@ class OnboardingService {
     
     keyboard.push([
       { text: getTranslation('nextLevelButton', language), callback_data: 'next_level' },
-      { text: getTranslation('goMiniAppButton', language), callback_data: 'go_miniapp' }
+      { text: getTranslation('goMiniAppButton', language), url: 'https://t.me/DuckChain_bot' }
     ]);
     
     keyboard.push([
       { text: getTranslation('nftQuizButton', language), callback_data: 'start_nft_quiz' }
+    ]);
+    
+    keyboard.push([
+      { text: getTranslation('officialDocsButton', language), url: 'https://diary.duckchain.io/' }
     ]);
     
     return { inline_keyboard: keyboard };
@@ -207,17 +293,17 @@ class OnboardingService {
 
     return {
       message: `🎯 ${questionText}\n\n${cleanAiResponse}`,
-      keyboard: {
-        inline_keyboard: [
-          [
-            { text: getTranslation('backToQuestionsButton', language), callback_data: 'back_to_questions' },
-            { text: getTranslation('goMiniAppButton', language), callback_data: 'go_miniapp' }
-          ],
-          [
-            { text: getTranslation('nftQuizButton', language), callback_data: 'start_nft_quiz' }
+              keyboard: {
+          inline_keyboard: [
+            [
+              { text: getTranslation('backToQuestionsButton', language), callback_data: 'back_to_questions' },
+              { text: getTranslation('goMiniAppButton', language), url: 'https://t.me/DuckChain_bot' }
+            ],
+            [
+              { text: getTranslation('nftQuizButton', language), callback_data: 'start_nft_quiz' }
+            ]
           ]
-        ]
-      }
+        }
     };
   }
 
@@ -259,12 +345,15 @@ Provide only the correct answer, nothing else.`;
     userState.quizAnswer = cleanCorrectAnswer;
 
     return {
-      message: `${getTranslation('nftQuizTitle', language)}\n\n${cleanQuizQuestion}\n\n${getTranslation('nftQuizPrompt', language)}`,
+      message: `${getTranslation('nftQuizTitle', language)}\n\n${getTranslation('docsRecommendationBefore', language)}\n\n${cleanQuizQuestion}\n\n${getTranslation('nftQuizPrompt', language)}`,
       keyboard: {
         inline_keyboard: [
           [
+            { text: getTranslation('officialDocsButton', language), url: 'https://diary.duckchain.io/' }
+          ],
+          [
             { text: getTranslation('backButton', language), callback_data: 'back_to_questions' },
-            { text: getTranslation('goMiniAppButton', language), callback_data: 'go_miniapp' }
+            { text: getTranslation('goMiniAppButton', language), url: 'https://t.me/DuckChain_bot' }
           ]
         ]
       }
@@ -299,9 +388,12 @@ Are they essentially the same or very similar in meaning? Respond with only "YES
 
     if (isCorrect) {
       return {
-        message: `${getTranslation('nftQuizCorrect', language)}`,
+        message: `${getTranslation('nftQuizCorrect', language)}\n\n${getTranslation('docsRecommendationAfter', language)}`,
         keyboard: {
           inline_keyboard: [
+            [
+              { text: getTranslation('officialDocsButton', language), url: 'https://diary.duckchain.io/' }
+            ],
             [
               { text: getTranslation('nftQuizReceiveButton', language), callback_data: 'claim_nft' }
             ],

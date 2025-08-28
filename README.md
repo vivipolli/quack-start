@@ -11,10 +11,12 @@ A comprehensive Telegram bot for the DuckChain ecosystem, providing multilingual
 
 ### 🎓 AI-Powered Onboarding System
 - **Multi-Level Education**: Basic, Intermediate, and Advanced levels
-- **Interactive Questions**: 15 curated questions about DuckChain
+- **Dynamic Questions**: AI-generated questions from Telegram community analysis
+- **Fundamental Question**: "What is DuckChain?" always included in basic level
 - **AI Responses**: Real-time answers using OpenRouter AI service
 - **Adaptive Teaching Style**: AI adjusts language based on user experience level
 - **Documentation Integration**: AI context from official DuckChain documentation
+- **Automatic Translation**: Questions dynamically translated to user's language
 
 ### 🎁 NFT Quiz & Rewards
 - **Interactive Quiz**: AI-generated questions based on DuckChain documentation
@@ -27,6 +29,13 @@ A comprehensive Telegram bot for the DuckChain ecosystem, providing multilingual
 - **Campaign System**: Fixed supply campaigns with varying rarities
 - **Owner-Only Creation**: Campaigns created only by contract owner
 - **Economic Viability**: Cost-controlled NFT distribution
+
+### 🤖 Telegram Community Scraping
+- **Automatic Data Collection**: Weekly scraping of official DuckChain community
+- **AI-Powered Analysis**: Intelligent question identification and categorization
+- **Frequency Analysis**: Identifies most frequently asked questions
+- **Dynamic Content**: Real-time question updates based on community needs
+- **Transparent Process**: Respects Telegram terms and community guidelines
 
 ## 📋 Bot Flow
 
@@ -96,11 +105,14 @@ Quiz button clicked → AI generates DuckChain-specific question → User answer
 - Dynamic text replacement
 - Consistent user experience
 
-#### `onboarding-questions.ts` - Question Management
-- 15 multilingual questions
-- Categorized by difficulty level
-- Dynamic language selection
-- Easy maintenance and expansion
+
+
+#### `telegram-scraper.ts` - Community Analysis
+- Automatic Telegram group scraping
+- AI-powered question identification
+- Frequency and relevance analysis
+- Weekly scheduled execution
+- JSON data export for onboarding integration
 
 #### `onboarding-service.ts` - Onboarding Logic
 - User state management with experience level tracking
@@ -108,6 +120,8 @@ Quiz button clicked → AI generates DuckChain-specific question → User answer
 - AI integration with adaptive teaching styles
 - Quiz system coordination
 - Experience-based response customization
+- Dynamic question loading from scraped data
+- Automatic question translation to user's language
 
 #### `openrouter-service.ts` - AI Integration
 - OpenRouter API integration
@@ -146,6 +160,8 @@ quack-start/
 ├── onboarding-service.ts    # Onboarding logic
 ├── openrouter-service.ts    # AI integration
 ├── docs-service.ts          # Documentation service
+├── telegram-scraper.ts      # Community scraping & analysis
+├── auto-scraper.js          # Automated scraping scheduler
 ├── sorteio-service.js       # Campaign management
 ├── package.json             # Dependencies
 ├── tsconfig.json           # TypeScript config
@@ -153,6 +169,7 @@ quack-start/
 ├── duckchain-docs/         # Documentation files
 │   ├── overview.md
 │   └── token.md
+├── duckchain-questions-*.json # Scraped community questions
 └── nft-contract/           # Smart contract
     ├── contracts/
     │   └── NFT-Reward.sol
@@ -172,6 +189,11 @@ quack-start/
 ```env
 TELEGRAM_TOKEN=your_telegram_bot_token
 OPENROUTER_API_KEY=your_openrouter_api_key
+
+# Telegram Scraping (Optional)
+TELEGRAM_API_ID=your_telegram_api_id
+TELEGRAM_API_HASH=your_telegram_api_hash
+TELEGRAM_SESSION_STRING=your_telegram_session_string
 ```
 
 ### Installation
@@ -203,6 +225,8 @@ Leverages OpenRouter AI with DuckChain documentation context:
 - **Multilingual AI**: Responses in user's language
 - **Adaptive Teaching**: Language adjusts based on user experience level
 - **Real-time Learning**: Immediate answers to questions
+- **Dynamic Questions**: Community-driven question generation
+- **Automatic Translation**: Questions translated to user's language
 
 ### NFT Quiz System
 Interactive reward system with educational value:
@@ -218,11 +242,31 @@ Economic and transparent NFT distribution:
 - **Owner Control**: Only contract owner can create campaigns
 - **Economic Viability**: Cost-effective on L2 (Arbitrum Orbit)
 
+### Telegram Community Scraping System
+Intelligent community analysis for dynamic content:
+- **Weekly Automation**: Scheduled scraping every 7 days
+- **Official Community**: Focuses on @DuckChain_io (30K+ members)
+- **AI Analysis**: Identifies most frequent and relevant questions
+- **Question Categorization**: Basic, Intermediate, Advanced classification
+- **Frequency Scoring**: 1-10 scale for question importance
+- **JSON Export**: Structured data for onboarding integration
+- **Automatic Translation**: Questions translated to user's language
+- **Fallback System**: Static questions when scraping unavailable
+
 ## 🚀 Usage Examples
 
 ### Starting the Bot
 ```
 /start → Language selection → Experience assessment (3 levels) → Onboarding with adapted AI responses
+```
+
+### Dynamic Question System
+```
+Weekly Scraping → AI Analysis → Question Categorization → Onboarding Integration:
+├── Fundamental Question: "What is DuckChain?" (always included)
+├── Dynamic Questions: Community-driven (frequency-based)
+├── Automatic Translation: User's language
+└── AI Responses: Contextual and adaptive
 ```
 
 ### Taking the Quiz
@@ -273,6 +317,9 @@ The bot intelligently adapts its teaching style based on user experience level:
 - **DeFi Integration**: Direct wallet interactions
 - **Community Features**: User interaction and gamification
 - **Personalized Learning Paths**: Customized question sequences
+- **Real-time Scraping**: More frequent community analysis
+- **Sentiment Analysis**: Community mood and trending topics
+- **Cross-Platform Integration**: Discord and other community platforms
 
 ## 📄 License
 

@@ -104,6 +104,55 @@ interface Translations {
     HI: string;
     default: string;
   };
+  loadingPreparingQuestions: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  loadingGeneratingResponse: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  loadingPreparingNextQuestion: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  loadingLoadingQuestions: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  loadingLoadingNextLevel: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  loadingGeneratingQuizQuestion: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  loadingCheckingAnswer: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
   nftQuizTitle: {
     PT: string;
     ES: string;
@@ -210,6 +259,27 @@ interface Translations {
     default: string;
   };
   nextLevelButton: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  docsRecommendationBefore: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  docsRecommendationAfter: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  officialDocsButton: {
     PT: string;
     ES: string;
     EN: string;
@@ -449,6 +519,76 @@ const translations: Translations = {
     EN: '🚀 Next Level',
     HI: '🚀 अगला स्तर',
     default: '🚀 Next Level'
+  },
+  docsRecommendationBefore: {
+    PT: '📚 Dica: Para aumentar suas chances de ganhar o NFT, leia a documentação oficial do DuckChain:',
+    ES: '📚 Consejo: Para aumentar tus posibilidades de ganar el NFT, lee la documentación oficial de DuckChain:',
+    EN: '📚 Tip: To increase your chances of winning the NFT, read the official DuckChain documentation:',
+    HI: '📚 सुझाव: NFT जीतने की संभावना बढ़ाने के लिए, DuckChain की आधिकारिक दस्तावेज़ीकरण पढ़ें:',
+    default: '📚 Tip: To increase your chances of winning the NFT, read the official DuckChain documentation:'
+  },
+  docsRecommendationAfter: {
+    PT: '📚 Parabéns! Para continuar aprendendo sobre DuckChain, explore a documentação oficial:',
+    ES: '📚 ¡Felicitaciones! Para continuar aprendiendo sobre DuckChain, explora la documentación oficial:',
+    EN: '📚 Congratulations! To continue learning about DuckChain, explore the official documentation:',
+    HI: '📚 बधाई हो! DuckChain के बारे में जानने के लिए, आधिकारिक दस्तावेज़ीकरण का पता लगाएं:',
+    default: '📚 Congratulations! To continue learning about DuckChain, explore the official documentation:'
+  },
+  officialDocsButton: {
+    PT: '📖 Documentação Oficial',
+    ES: '📖 Documentación Oficial',
+    EN: '📖 Official Documentation',
+    HI: '📖 आधिकारिक दस्तावेज़ीकरण',
+    default: '📖 Official Documentation'
+  },
+  loadingPreparingQuestions: {
+    PT: '🤖 Preparando perguntas personalizadas...',
+    ES: '🤖 Preparando preguntas personalizadas...',
+    EN: '🤖 Preparing personalized questions...',
+    HI: '🤖 व्यक्तिगत प्रश्न तैयार कर रहा है...',
+    default: '🤖 Preparing personalized questions...'
+  },
+  loadingGeneratingResponse: {
+    PT: '🤖 Gerando resposta personalizada...',
+    ES: '🤖 Generando respuesta personalizada...',
+    EN: '🤖 Generating personalized response...',
+    HI: '🤖 व्यक्तिगत प्रतिक्रिया उत्पन्न कर रहा है...',
+    default: '🤖 Generating personalized response...'
+  },
+  loadingPreparingNextQuestion: {
+    PT: '🤖 Preparando próxima pergunta...',
+    ES: '🤖 Preparando siguiente pregunta...',
+    EN: '🤖 Preparing next question...',
+    HI: '🤖 अगला प्रश्न तैयार कर रहा है...',
+    default: '🤖 Preparing next question...'
+  },
+  loadingLoadingQuestions: {
+    PT: '🤖 Carregando perguntas...',
+    ES: '🤖 Cargando preguntas...',
+    EN: '🤖 Loading questions...',
+    HI: '🤖 प्रश्न लोड कर रहा है...',
+    default: '🤖 Loading questions...'
+  },
+  loadingLoadingNextLevel: {
+    PT: '🤖 Carregando próximo nível...',
+    ES: '🤖 Cargando siguiente nivel...',
+    EN: '🤖 Loading next level...',
+    HI: '🤖 अगला स्तर लोड कर रहा है...',
+    default: '🤖 Loading next level...'
+  },
+  loadingGeneratingQuizQuestion: {
+    PT: '🤖 Gerando pergunta do quiz...',
+    ES: '🤖 Generando pregunta del quiz...',
+    EN: '🤖 Generating quiz question...',
+    HI: '🤖 क्विज प्रश्न उत्पन्न कर रहा है...',
+    default: '🤖 Generating quiz question...'
+  },
+  loadingCheckingAnswer: {
+    PT: '🤖 Verificando resposta...',
+    ES: '🤖 Verificando respuesta...',
+    EN: '🤖 Checking answer...',
+    HI: '🤖 उत्तर की जांच कर रहा है...',
+    default: '🤖 Checking answer...'
   }
 };
 

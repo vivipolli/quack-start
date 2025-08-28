@@ -2,7 +2,7 @@
 
 ## 🎯 The Problem
 
-When users first encounter the DuckChain ecosystem through Telegram, they face several critical barriers that prevent effective onboarding and engagement:
+When people are new to any blockchain ecosystem, they often feel lost: there are too many options, complicated information, and lots of features competing for their attention. What new users really need isn't more distractions or flashy features—they need clarity, simple explanations, and a clear path to get started.
 
 ### 🚫 **User Confusion & Overwhelm**
 - **Information Overload**: New users are bombarded with complex blockchain terminology and multiple options
@@ -22,6 +22,8 @@ Both blockchain beginners and experienced users face similar challenges:
 - **Result**: High abandonment rates and missed opportunities for ecosystem growth
 
 ## 💡 Our Solution
+
+That’s why we are building a solution on Duckchain: to simplify the onboarding experience, guide newcomers step by step, and ensure that their first contact with Web3 is smooth, intuitive, and valuable. A key part of this is onboarding in the user’s native language, which makes it easier to understand new terms and concepts without barriers.
 
 We implemented a **comprehensive, multilingual, AI-powered Telegram bot** that transforms user confusion into engagement through personalized education and rewards.
 

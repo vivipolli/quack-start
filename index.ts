@@ -4,14 +4,35 @@ const { translations } = require('./translations');
 const { OpenRouterService } = require('./openrouter-service');
 const { CampanhaService } = require('./sorteio-service');
 const { OnboardingService } = require('./onboarding-service');
+const { TelegramScraper } = require('./telegram-scraper');
 
 // Type imports for Telegraf
 import type { Context } from 'telegraf';
 
-const bot = new Telegraf(process.env.TELEGRAM_TOKEN as string);
+const bot = new Telegraf(process.env.TELEGRAM_TOKEN as string, {
+  telegram: {
+    timeout: 30000 // 30 segundos
+  }
+});
 const openRouterService = new OpenRouterService();
 const campanhaService = new CampanhaService();
 const onboardingService = new OnboardingService(openRouterService);
+
+// Inicializar scraper automático
+let scraper: any = null;
+if (process.env.TELEGRAM_API_ID && process.env.TELEGRAM_API_HASH && process.env.TELEGRAM_SESSION_STRING) {
+  scraper = new TelegramScraper(
+    parseInt(process.env.TELEGRAM_API_ID),
+    process.env.TELEGRAM_API_HASH,
+    process.env.TELEGRAM_SESSION_STRING,
+    {
+      enabled: true,
+      intervalHours: 168, // 7 dias
+      messagesPerGroup: 500,
+      groups: ['@DuckChain_io'] // Apenas a comunidade oficial
+    }
+  );
+}
 
 // Armazenamento de preferências de idioma dos usuários
 const userLanguages: { [userId: number]: string } = {};
@@ -82,7 +103,12 @@ bot.action('blockchain_beginner', async (ctx: Context) => {
   if (ctx.from) {
     const userId = ctx.from.id;
     const lang = userLanguages[userId] || 'EN';
-    const onboarding = onboardingService.startOnboarding(userId, 'blockchain_beginner', lang);
+    
+    // Mostrar loading
+    await ctx.replyWithChatAction('typing');
+    await ctx.reply(getTranslation('loadingPreparingQuestions', lang));
+    
+    const onboarding = await onboardingService.startOnboarding(userId, 'blockchain_beginner', lang);
     await ctx.reply(onboarding.message, Markup.inlineKeyboard(onboarding.keyboard.inline_keyboard));
   }
 });
@@ -91,7 +117,12 @@ bot.action('duckchain_new', async (ctx: Context) => {
   if (ctx.from) {
     const userId = ctx.from.id;
     const lang = userLanguages[userId] || 'EN';
-    const onboarding = onboardingService.startOnboarding(userId, 'duckchain_new', lang);
+    
+    // Mostrar loading
+    await ctx.replyWithChatAction('typing');
+    await ctx.reply(getTranslation('loadingPreparingQuestions', lang));
+    
+    const onboarding = await onboardingService.startOnboarding(userId, 'duckchain_new', lang);
     await ctx.reply(onboarding.message, Markup.inlineKeyboard(onboarding.keyboard.inline_keyboard));
   }
 });
@@ -99,14 +130,14 @@ bot.action('duckchain_new', async (ctx: Context) => {
 bot.action('experienced', (ctx: Context) => {
   const lang = ctx.from ? (userLanguages[ctx.from.id] || 'EN') : 'EN';
   ctx.reply(getTranslation('goToMiniApp', lang), Markup.inlineKeyboard([
-    [Markup.button.url('🚀 DuckChain Mini App', 'https://duckchain.app')]
+    [Markup.button.url('🦆 @DuckChain_bot', 'https://t.me/DuckChain_bot')]
   ]));
 });
 
 bot.action('go_miniapp', (ctx: Context) => {
   const lang = ctx.from ? (userLanguages[ctx.from.id] || 'EN') : 'EN';
   ctx.reply(getTranslation('goToMiniApp', lang), Markup.inlineKeyboard([
-    [Markup.button.url('🚀 DuckChain Mini App', 'https://duckchain.app')]
+    [Markup.button.url('🦆 @DuckChain_bot', 'https://t.me/DuckChain_bot')]
   ]));
 });
 
@@ -114,6 +145,11 @@ bot.action('skip_question', async (ctx: Context) => {
   if (ctx.from) {
     const userId = ctx.from.id;
     const lang = userLanguages[userId] || 'EN';
+    
+    // Mostrar loading
+    await ctx.replyWithChatAction('typing');
+    await ctx.reply(getTranslation('loadingPreparingNextQuestion', lang));
+    
     const result = await onboardingService.handleAnswer(userId, 'skip', lang);
     await ctx.reply(result.message, Markup.inlineKeyboard(result.keyboard.inline_keyboard));
   }
@@ -125,6 +161,11 @@ bot.action(/^select_question_(.+)$/, async (ctx: Context) => {
     const callbackData = (ctx as any).match?.[1];
     if (callbackData) {
       const lang = userLanguages[userId] || 'EN';
+      
+      // Mostrar loading
+      await ctx.replyWithChatAction('typing');
+      await ctx.reply(getTranslation('loadingGeneratingResponse', lang));
+      
       const result = await onboardingService.selectQuestion(userId, callbackData, lang);
       await ctx.reply(result.message, Markup.inlineKeyboard(result.keyboard.inline_keyboard));
     }
@@ -135,10 +176,14 @@ bot.action('back_to_questions', async (ctx: Context) => {
   if (ctx.from) {
     const userId = ctx.from.id;
     const lang = userLanguages[userId] || 'EN';
+    
+    // Mostrar loading
+    await ctx.replyWithChatAction('typing');
+    await ctx.reply(getTranslation('loadingLoadingQuestions', lang));
+    
     const userState = onboardingService.getUserState(userId);
     if (userState) {
       const questions = onboardingService['questions'].filter((q: any) => q.category === userState.category);
-      const { getTranslation } = require('./translations');
       
       // Get the correct title based on current category
       const getTitleKey = (category: string) => {
@@ -164,6 +209,11 @@ bot.action('next_level', async (ctx: Context) => {
   if (ctx.from) {
     const userId = ctx.from.id;
     const lang = userLanguages[userId] || 'EN';
+    
+    // Mostrar loading
+    await ctx.replyWithChatAction('typing');
+    await ctx.reply(getTranslation('loadingLoadingNextLevel', lang));
+    
     const userState = onboardingService.getUserState(userId);
     if (userState) {
       if (userState.category === 'basic') {
@@ -177,7 +227,7 @@ bot.action('next_level', async (ctx: Context) => {
         await ctx.reply(message, Markup.inlineKeyboard(onboardingService['getQuestionSelectionKeyboard'](questions, lang).inline_keyboard));
       } else if (userState.category === 'intermediate') {
         userState.category = 'advanced';
-        const questions = onboardingService['questions'].filter((q: any) => q.category === 'advanced');
+        const questions = onboardingService.getAdvancedQuestions();
         let message = `${getTranslation('onboardingTitleAdvanced', lang)}\n\n${getTranslation('onboardingDescription', lang)}\n\n`;
         questions.forEach((question: any, index: number) => {
           const { getQuestionText } = require('./onboarding-questions');
@@ -200,6 +250,11 @@ bot.action('start_nft_quiz', async (ctx: Context) => {
   if (ctx.from) {
     const userId = ctx.from.id;
     const lang = userLanguages[userId] || 'EN';
+    
+    // Mostrar loading
+    await ctx.replyWithChatAction('typing');
+    await ctx.reply(getTranslation('loadingGeneratingQuizQuestion', lang));
+    
     const result = await onboardingService.startNFTQuiz(userId, lang);
     await ctx.reply(result.message, Markup.inlineKeyboard(result.keyboard.inline_keyboard));
   }
@@ -224,6 +279,23 @@ bot.action('claim_nft', async (ctx: Context) => {
 bot.command('status', async (ctx: Context) => {
   const status = campanhaService.getStatusCampanha();
   ctx.reply(status.message);
+});
+
+// Comando para verificar status do scraping (apenas admin)
+bot.command('scraping', async (ctx: Context) => {
+  if (scraper) {
+    const status = scraper.getScrapingStatus();
+    const message = `📊 Status do Scraping Automático:\n\n` +
+      `🔄 Ativo: ${status.enabled ? 'Sim' : 'Não'}\n` +
+      `⏰ Intervalo: ${status.intervalHours} horas\n` +
+      `📱 Mensagens por grupo: ${status.messagesPerGroup}\n` +
+      `👥 Grupos: ${status.groups.join(', ')}\n` +
+      `🕐 Última execução: ${status.lastRun ? status.lastRun.toLocaleString('pt-BR') : 'Nunca'}`;
+    
+    await ctx.reply(message);
+  } else {
+    await ctx.reply('❌ Scraping automático não configurado.');
+  }
 });
 
 // Ações para seleção de idioma
@@ -286,6 +358,7 @@ bot.on('text', async (ctx: Context) => {
     const userState = onboardingService.getUserState(userId);
     if (userState && userState.inQuiz) {
       await ctx.replyWithChatAction('typing');
+      await ctx.reply(getTranslation('loadingCheckingAnswer', userLang));
       try {
         const result = await onboardingService.checkQuizAnswer(userId, userMessage, userLang);
         await ctx.reply(result.message, Markup.inlineKeyboard(result.keyboard.inline_keyboard));
@@ -299,6 +372,7 @@ bot.on('text', async (ctx: Context) => {
     // Check if user is in onboarding
     if (onboardingService.isInOnboarding(userId)) {
       await ctx.replyWithChatAction('typing');
+      await ctx.reply(getTranslation('loadingGeneratingResponse', userLang));
       try {
         const result = await onboardingService.handleAnswer(userId, userMessage, userLang);
         await ctx.reply(result.message, Markup.inlineKeyboard(result.keyboard.inline_keyboard));
@@ -315,10 +389,92 @@ bot.on('text', async (ctx: Context) => {
   }
 });
 
-bot.launch()
-  .then(() => {
-    console.log('DuckMate rodando em TypeScript 🦆');
-  })
-  .catch((error: any) => {
-    console.error('Erro ao iniciar o bot:', error);
-  });
+// Function to initialize auto scraper
+async function initializeAutoScraper() {
+  console.log('🔍 Checking scraper configuration...');
+  
+  if (scraper) {
+    console.log('✅ Scraper instance found, initializing...');
+    try {
+      console.log('🔗 Connecting to Telegram for scraping...');
+      await scraper.connect();
+      
+      console.log('🤖 Starting auto scraping...');
+      scraper.startAutoScraping();
+      
+      console.log('✅ Auto scraping started! It will run every 7 days.');
+      
+      // Show initial status
+      const status = scraper.getScrapingStatus();
+      console.log('📊 Scraping Configuration:');
+      console.log(`   - Interval: ${status.intervalHours} hours`);
+      console.log(`   - Messages per group: ${status.messagesPerGroup}`);
+      console.log(`   - Groups: ${status.groups.join(', ')}`);
+      console.log(`   - Last run: ${status.lastRun || 'Never'}\n`);
+      
+    } catch (error) {
+      console.error('❌ Error initializing auto scraping:', error);
+    }
+  } else {
+    console.log('⚠️ Auto scraping not configured. Set the environment variables:');
+    console.log('   TELEGRAM_API_ID, TELEGRAM_API_HASH, TELEGRAM_SESSION_STRING');
+  }
+}
+
+// Start the bot and scraper
+async function startServices() {
+  const maxRetries = 3;
+  let retryCount = 0;
+
+  while (retryCount < maxRetries) {
+    try {
+      console.log(`🔄 Attempt ${retryCount + 1}/${maxRetries} to start services...`);
+      console.log('📡 Connecting to Telegram Bot API...');
+      
+      // Start bot
+      await bot.launch();
+      console.log('🤖 Bot started successfully!');
+      
+      console.log('🔍 Checking scraper configuration...');
+      // Initialize auto scraper
+      await initializeAutoScraper();
+      
+      console.log('🚀 All services started successfully!');
+      break; // Success, exit retry loop
+      
+    } catch (error: any) {
+      retryCount++;
+      console.error(`❌ Error starting services (attempt ${retryCount}/${maxRetries}):`, error.message);
+      
+      if (retryCount < maxRetries) {
+        console.log(`⏳ Waiting 5 seconds before retry...`);
+        await new Promise(resolve => setTimeout(resolve, 5000));
+      } else {
+        console.error('❌ Failed to start services after all retries');
+        throw error;
+      }
+    }
+  }
+}
+
+// Start services
+startServices();
+
+// Graceful shutdown
+process.once('SIGINT', async () => {
+  console.log('\n🛑 Shutting down services...');
+  if (scraper) {
+    await scraper.disconnect();
+  }
+  bot.stop('SIGINT');
+  console.log('👋 Services stopped.');
+});
+
+process.once('SIGTERM', async () => {
+  console.log('\n🛑 Shutting down services...');
+  if (scraper) {
+    await scraper.disconnect();
+  }
+  bot.stop('SIGTERM');
+  console.log('👋 Services stopped.');
+});

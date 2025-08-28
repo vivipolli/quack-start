@@ -62,44 +62,59 @@ const GAS_LANE = "0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823b
 const CALLBACK_GAS_LIMIT = 500000;
 ```
 
-### Deploy
+### Deploy with Hardhat Ignition
+```bash
+# Deploy using the NFT-Reward module
+npx hardhat ignition deploy ignition/modules/NFT-Reward.js --network sepolia
+
+# Deploy with custom parameters
+npx hardhat ignition deploy ignition/modules/NFT-Reward.js \
+  --parameters vrfCoordinatorV2=0x50AE5Ea38517BD599b4848cbd1a792e94964d2a6 \
+  --parameters subscriptionId=123 \
+  --parameters gasLane=0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c \
+  --parameters callbackGasLimit=500000 \
+  --parameters initialOwner=0xYourOwnerAddress \
+  --network sepolia
+```
+
+### Traditional Deploy
 ```bash
 npx hardhat run scripts/deploy.js --network sepolia
 ```
 
-### Criar Campanha (Apenas Owner)
+### Create Campaign (Owner Only)
 ```javascript
-// Apenas o owner do contrato pode criar campanhas
-await nftContract.criarCampanha(
-    "DuckChain Launch",  // Nome da campanha
-    1000,                // Total de NFTs
+// Only the contract owner can create campaigns
+await nftContract.createCampaign(
+    "DuckChain Launch",  // Campaign name
+    1000,                // Total NFTs
     700,                 // Common
     250,                 // Rare
     50,                  // Legendary
-    30                   // Duração em dias
+    30                   // Duration in days
 );
 ```
 
 ## 📝 Uso do Contrato
 
-### Para Usuários
+### For Users
 ```javascript
-// Solicitar NFT com raridade aleatória
-const requestId = await nftContract.requestRarityNFT();
+// Request NFT with random rarity
+const requestId = await nftContract.participateInCampaign();
 
-// Escutar evento de mint
+// Listen to mint event
 nftContract.on("NFTMinted", (to, tokenId, rarity) => {
-    console.log(`NFT ${rarity} mintado para ${to}`);
+    console.log(`NFT ${rarity} minted for ${to}`);
 });
 ```
 
-### Para a Plataforma
+### For Platform
 ```javascript
-// Verificar raridade de um NFT
-const nftInfo = await nftContract.getNFTInfo(tokenId);
-console.log(`NFT ${tokenId} é ${nftInfo.rarity}`);
+// Check campaign status
+const campaignStatus = await nftContract.getCampaignStatus();
+console.log(`Campaign: ${campaignStatus.name}, Active: ${campaignStatus.active}`);
 
-// Verificar se usuário já reivindicou
+// Check if user already participated
 const hasClaimed = await nftContract.hasClaimed(userAddress);
 ```
 
@@ -107,15 +122,21 @@ const hasClaimed = await nftContract.hasClaimed(userAddress);
 
 ## 🎯 Casos de Uso
 
-### **1. Onboarding de Novos Usuários**
-- Usuário se registra na plataforma
-- Solicita NFT de recompensa
-- Recebe NFT com raridade aleatória
+### **1. New User Onboarding**
+- User registers on the platform
+- Requests reward NFT
+- Receives NFT with random rarity
 
-### **2. Sistema de Recompensas**
-- Usuários ativos recebem NFTs raros
-- Eventos especiais com NFTs Legendary
-- Gamificação da plataforma
+### **2. Reward System**
+- Active users receive rare NFTs
+- Special events with Legendary NFTs
+- Platform gamification
+
+### **3. Community Art Ecosystem**
+- Community artists create NFT artwork
+- DUCK token reward system for creators
+- Official representation of artwork by artists
+- Incentive for active community participation
 
 ## 🔍 Eventos
 
@@ -143,13 +164,22 @@ console.log(`Total mintado: ${stats.totalMinted}`);
 console.log(`Max supply: ${stats.maxSupply}`);
 ```
 
-## 🎨 Metadados
+## 🎨 Metadados e Arte
 
 Cada NFT inclui metadados on-chain com:
 - **Nome**: Baseado na raridade (ex: "Golden Duck #123")
 - **Descrição**: Informações sobre a coleção
 - **Atributos**: Raridade, Token ID, Collection
 - **Imagem**: URI para imagem do NFT
+
+### **Community Art**
+NFT artwork is created by the community, which engages the ecosystem, and these creators can receive DUCK tokens and also become representatives of the artwork. This serves as an incentive for network artists, promoting:
+
+- **🎨 Community Creation**: Community artists create NFT artwork
+- **💰 Token Incentives**: Creators receive DUCK tokens as rewards
+- **🏆 Representation**: Artists become official representatives of the artwork
+- **🌱 Engagement**: System encourages active community participation
+- **🎯 Gamification**: Combines art, technology, and rewards
 
 ## 🔮 Roadmap
 

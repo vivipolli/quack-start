@@ -7,8 +7,6 @@ import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/vrf/VRFConsumerBa
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/vrf/interfaces/VRFCoordinatorV2Interface.sol";
 
 contract QuackStart is ERC721, Ownable, VRFConsumerBaseV2 {
-    using Counters for Counters.Counter;
-
     uint256 private _nextTokenId;
 
     // Chainlink VRF
@@ -19,31 +17,31 @@ contract QuackStart is ERC721, Ownable, VRFConsumerBaseV2 {
     uint16 private constant REQUEST_CONFIRMATIONS = 3;
     uint32 private constant NUM_WORDS = 1;
 
-    // Campanha atual
-    struct Campanha {
-        string nome;
+    // Current campaign
+    struct Campaign {
+        string name;
         uint256 totalNFTs;
-        uint256 mintados;
-        uint256 commonDisponivel;
-        uint256 rareDisponivel;
-        uint256 legendaryDisponivel;
-        bool ativa;
-        uint256 dataInicio;
-        uint256 dataFim;
+        uint256 minted;
+        uint256 commonAvailable;
+        uint256 rareAvailable;
+        uint256 legendaryAvailable;
+        bool active;
+        uint256 startDate;
+        uint256 endDate;
     }
 
-    Campanha public campanhaAtual;
+    Campaign public currentCampaign;
     mapping(uint256 => address) public s_rarityRequests;
     mapping(address => bool) public hasClaimed;
 
     event NFTMinted(address indexed to, uint256 indexed tokenId, string rarity);
-    event CampanhaCriada(
-        string nome,
+    event CampaignCreated(
+        string name,
         uint256 totalNFTs,
-        uint256 dataInicio,
-        uint256 dataFim
+        uint256 startDate,
+        uint256 endDate
     );
-    event CampanhaFinalizada(string nome, uint256 totalMintados);
+    event CampaignFinalized(string name, uint256 totalMinted);
 
     constructor(
         address initialOwner,
@@ -62,48 +60,51 @@ contract QuackStart is ERC721, Ownable, VRFConsumerBaseV2 {
         i_callbackGasLimit = callbackGasLimit;
     }
 
-    function criarCampanha(
-        string memory nome,
+    function createCampaign(
+        string memory name,
         uint256 totalNFTs,
         uint256 common,
         uint256 rare,
         uint256 legendary,
-        uint256 duracaoDias
+        uint256 durationDays
     ) external onlyOwner {
         require(
             totalNFTs == common + rare + legendary,
-            "Total deve ser igual a soma das raridades"
+            "Total must equal sum of rarities"
         );
-        require(campanhaAtual.ativa == false, "Campanha atual ainda ativa");
+        require(
+            currentCampaign.active == false,
+            "Current campaign still active"
+        );
 
-        campanhaAtual = Campanha({
-            nome: nome,
+        currentCampaign = Campaign({
+            name: name,
             totalNFTs: totalNFTs,
-            mintados: 0,
-            commonDisponivel: common,
-            rareDisponivel: rare,
-            legendaryDisponivel: legendary,
-            ativa: true,
-            dataInicio: block.timestamp,
-            dataFim: block.timestamp + (duracaoDias * 1 days)
+            minted: 0,
+            commonAvailable: common,
+            rareAvailable: rare,
+            legendaryAvailable: legendary,
+            active: true,
+            startDate: block.timestamp,
+            endDate: block.timestamp + (durationDays * 1 days)
         });
 
-        emit CampanhaCriada(
-            nome,
+        emit CampaignCreated(
+            name,
             totalNFTs,
-            campanhaAtual.dataInicio,
-            campanhaAtual.dataFim
+            currentCampaign.startDate,
+            currentCampaign.endDate
         );
     }
 
-    function participarCampanha() external returns (uint256 requestId) {
-        require(campanhaAtual.ativa, "Nenhuma campanha ativa");
-        require(block.timestamp <= campanhaAtual.dataFim, "Campanha expirada");
+    function participateInCampaign() external returns (uint256 requestId) {
+        require(currentCampaign.active, "No active campaign");
+        require(block.timestamp <= currentCampaign.endDate, "Campaign expired");
         require(
-            campanhaAtual.mintados < campanhaAtual.totalNFTs,
-            "Campanha esgotada"
+            currentCampaign.minted < currentCampaign.totalNFTs,
+            "Campaign sold out"
         );
-        require(!hasClaimed[msg.sender], "Ja participou da campanha");
+        require(!hasClaimed[msg.sender], "Already participated in campaign");
 
         requestId = i_vrfCoordinator.requestRandomWords(
             i_gasLane,
@@ -121,13 +122,13 @@ contract QuackStart is ERC721, Ownable, VRFConsumerBaseV2 {
         uint256[] memory randomWords
     ) internal override {
         address user = s_rarityRequests[requestId];
-        require(user != address(0), "Request nao encontrado");
-        require(!hasClaimed[user], "Usuario ja participou");
+        require(user != address(0), "Request not found");
+        require(!hasClaimed[user], "User already participated");
 
-        string memory rarity = _determinarRaridade(randomWords[0]);
+        string memory rarity = _determineRarity(randomWords[0]);
 
         hasClaimed[user] = true;
-        campanhaAtual.mintados++;
+        currentCampaign.minted++;
 
         uint256 tokenId = _nextTokenId++;
         _safeMint(user, tokenId);
@@ -135,58 +136,58 @@ contract QuackStart is ERC721, Ownable, VRFConsumerBaseV2 {
         emit NFTMinted(user, tokenId, rarity);
     }
 
-    function _determinarRaridade(
+    function _determineRarity(
         uint256 randomNumber
-    ) internal view returns (string memory) {
-        uint256 total = campanhaAtual.commonDisponivel +
-            campanhaAtual.rareDisponivel +
-            campanhaAtual.legendaryDisponivel;
+    ) internal returns (string memory) {
+        uint256 total = currentCampaign.commonAvailable +
+            currentCampaign.rareAvailable +
+            currentCampaign.legendaryAvailable;
         uint256 random = randomNumber % total;
 
-        if (random < campanhaAtual.legendaryDisponivel) {
-            campanhaAtual.legendaryDisponivel--;
+        if (random < currentCampaign.legendaryAvailable) {
+            currentCampaign.legendaryAvailable--;
             return "LEGENDARY";
         } else if (
             random <
-            campanhaAtual.legendaryDisponivel + campanhaAtual.rareDisponivel
+            currentCampaign.legendaryAvailable + currentCampaign.rareAvailable
         ) {
-            campanhaAtual.rareDisponivel--;
+            currentCampaign.rareAvailable--;
             return "RARE";
         } else {
-            campanhaAtual.commonDisponivel--;
+            currentCampaign.commonAvailable--;
             return "COMMON";
         }
     }
 
-    function finalizarCampanha() external onlyOwner {
-        require(campanhaAtual.ativa, "Nenhuma campanha ativa");
-        campanhaAtual.ativa = false;
-        emit CampanhaFinalizada(campanhaAtual.nome, campanhaAtual.mintados);
+    function finalizeCampaign() external onlyOwner {
+        require(currentCampaign.active, "No active campaign");
+        currentCampaign.active = false;
+        emit CampaignFinalized(currentCampaign.name, currentCampaign.minted);
     }
 
-    function getStatusCampanha()
+    function getCampaignStatus()
         external
         view
         returns (
-            string memory nome,
+            string memory name,
             uint256 totalNFTs,
-            uint256 mintados,
-            uint256 commonDisponivel,
-            uint256 rareDisponivel,
-            uint256 legendaryDisponivel,
-            bool ativa,
-            uint256 dataFim
+            uint256 minted,
+            uint256 commonAvailable,
+            uint256 rareAvailable,
+            uint256 legendaryAvailable,
+            bool active,
+            uint256 endDate
         )
     {
         return (
-            campanhaAtual.nome,
-            campanhaAtual.totalNFTs,
-            campanhaAtual.mintados,
-            campanhaAtual.commonDisponivel,
-            campanhaAtual.rareDisponivel,
-            campanhaAtual.legendaryDisponivel,
-            campanhaAtual.ativa,
-            campanhaAtual.dataFim
+            currentCampaign.name,
+            currentCampaign.totalNFTs,
+            currentCampaign.minted,
+            currentCampaign.commonAvailable,
+            currentCampaign.rareAvailable,
+            currentCampaign.legendaryAvailable,
+            currentCampaign.active,
+            currentCampaign.endDate
         );
     }
 }
