@@ -1,7 +1,24 @@
+const { translations } = require('./translations');
+const { onboardingQuestions, getQuestionText, getQuestionsByCategory } = require('./onboarding-questions');
+
+function getTranslation(key: string, language: string): string {
+  const translation = translations[key];
+  if (!translation) {
+    return key;
+  }
+  return translation[language as keyof typeof translation] || translation.default || key;
+}
+
 interface OnboardingQuestion {
   id: string;
   category: 'basic' | 'intermediate' | 'advanced';
-  question: string;
+  question: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
 }
 
 interface UserOnboardingState {
@@ -9,6 +26,9 @@ interface UserOnboardingState {
   currentStep: number;
   category: 'basic' | 'intermediate' | 'advanced';
   completed: boolean;
+  inQuiz?: boolean;
+  quizQuestion?: string | undefined;
+  quizAnswer?: string | undefined;
 }
 
 class OnboardingService {
@@ -19,90 +39,11 @@ class OnboardingService {
     this.openRouterService = openRouterService;
   }
 
-  private readonly questions: OnboardingQuestion[] = [
-    // Basic Level - Foundation
-    {
-      id: 'what_is_duckchain',
-      category: 'basic',
-      question: 'What is DuckChain?'
-    },
-    {
-      id: 'advantages',
-      category: 'basic',
-      question: 'What are the advantages of using DuckChain?'
-    },
-    {
-      id: 'token_purpose',
-      category: 'basic',
-      question: 'What is the purpose of the $DUCK token?'
-    },
-    {
-      id: 'telegram_integration',
-      category: 'basic',
-      question: 'How does DuckChain integrate with Telegram?'
-    },
-    {
-      id: 'mass_adoption',
-      category: 'basic',
-      question: 'How does DuckChain enable mass adoption?'
-    },
-    
-    // Intermediate Level - Practical Usage
-    {
-      id: 'create_wallet',
-      category: 'intermediate',
-      question: 'How do I create a wallet on DuckChain?'
-    },
-    {
-      id: 'transfer_nft',
-      category: 'intermediate',
-      question: 'How do I create and transfer NFTs?'
-    },
-    {
-      id: 'gas_fees',
-      category: 'intermediate',
-      question: 'How do gas fees work on DuckChain?'
-    },
-    {
-      id: 'staking',
-      category: 'intermediate',
-      question: 'How does staking work on DuckChain?'
-    },
-    {
-      id: 'governance',
-      category: 'intermediate',
-      question: 'How does governance work on DuckChain?'
-    },
-    
-    // Advanced Level - Technical Details
-    {
-      id: 'infrastructure',
-      category: 'advanced',
-      question: 'What is DuckChain\'s technical infrastructure?'
-    },
-    {
-      id: 'ai_module',
-      category: 'advanced',
-      question: 'How does the AI Module work on DuckChain?'
-    },
-    {
-      id: 'cross_chain',
-      category: 'advanced',
-      question: 'How does cross-chain interoperability work?'
-    },
-    {
-      id: 'security',
-      category: 'advanced',
-      question: 'What security features does DuckChain have?'
-    },
-    {
-      id: 'developer_tools',
-      category: 'advanced',
-      question: 'What developer tools are available on DuckChain?'
-    }
-  ];
+  private get questions(): OnboardingQuestion[] {
+    return onboardingQuestions;
+  }
 
-  startOnboarding(userId: number): { message: string; keyboard: any } {
+  startOnboarding(userId: number, language: string = 'EN'): { message: string; keyboard: any } {
     const userState: UserOnboardingState = {
       userId,
       currentStep: 0,
@@ -117,19 +58,19 @@ class OnboardingService {
     if (basicQuestions.length === 0) {
       return {
         message: 'Onboarding not available at the moment.',
-        keyboard: this.getOnboardingKeyboard()
+        keyboard: this.getOnboardingKeyboard(language)
       };
     }
     
-    let message = `🎓 **DuckChain Onboarding - Basic Level**\n\nEscolha uma pergunta para começar:\n\n`;
+    let message = `🎓 ${getTranslation('onboardingTitle', language)}\n`;
     
     basicQuestions.forEach((question, index) => {
-      message += `${index + 1}. ${question.question}\n`;
+      message += `${index + 1}. ${getQuestionText(question, language)}\n`;
     });
     
     return {
       message: message,
-      keyboard: this.getQuestionSelectionKeyboard(basicQuestions)
+      keyboard: this.getQuestionSelectionKeyboard(basicQuestions, language)
     };
   }
 
@@ -152,55 +93,52 @@ class OnboardingService {
     // Show the same question selection again
     const currentQuestions = this.questions.filter(q => q.category === userState.category);
     
-    let message = `${aiResponse}\n\n🎓 **DuckChain Onboarding - ${userState.category.charAt(0).toUpperCase() + userState.category.slice(1)} Level**\n\nEscolha outra pergunta ou continue:\n\n`;
+    let message = `${aiResponse}\n\n🎓 ${getTranslation('onboardingTitle', language)}\n\n${getTranslation('onboardingDescription', language)}\n\n`;
     currentQuestions.forEach((question, index) => {
-      message += `${index + 1}. ${question.question}\n`;
+      message += `${index + 1}. ${getQuestionText(question, language)}\n`;
     });
     
     return {
       message: message,
-      keyboard: this.getQuestionSelectionKeyboard(currentQuestions),
+      keyboard: this.getQuestionSelectionKeyboard(currentQuestions, language),
       completed: false
     };
   }
 
-  private getOnboardingKeyboard(): any {
+  private getOnboardingKeyboard(language: string = 'EN'): any {
     return {
       inline_keyboard: [
         [
-          { text: '📱 Go to Mini App', callback_data: 'go_miniapp' },
-          { text: '⏭️ Skip Question', callback_data: 'skip_question' }
+          { text: getTranslation('goMiniAppButton', language), callback_data: 'go_miniapp' },
+          { text: getTranslation('skipQuestionButton', language), callback_data: 'skip_question' }
+        ],
+        [
+          { text: getTranslation('nftQuizButton', language), callback_data: 'start_nft_quiz' }
         ]
       ]
     };
   }
 
-  private getQuestionSelectionKeyboard(questions: OnboardingQuestion[]): any {
+  private getQuestionSelectionKeyboard(questions: OnboardingQuestion[], language: string = 'EN'): any {
     const keyboard = [];
     
     questions.forEach((question, index) => {
+      const questionText = getQuestionText(question, language);
       keyboard.push([
-        { text: `${index + 1}. ${question.question.substring(0, 30)}...`, callback_data: `select_question_${question.id}` }
+        { text: `${index + 1}. ${questionText.substring(0, 30)}...`, callback_data: `select_question_${question.id}` }
       ]);
     });
     
     keyboard.push([
-      { text: '🚀 Próximo Nível', callback_data: 'next_level' },
-      { text: '📱 Go to Mini App', callback_data: 'go_miniapp' }
+      { text: getTranslation('nextLevelButton', language), callback_data: 'next_level' },
+      { text: getTranslation('goMiniAppButton', language), callback_data: 'go_miniapp' }
+    ]);
+    
+    keyboard.push([
+      { text: getTranslation('nftQuizButton', language), callback_data: 'start_nft_quiz' }
     ]);
     
     return { inline_keyboard: keyboard };
-  }
-
-  private getMiniAppKeyboard(): any {
-    return {
-      inline_keyboard: [
-        [
-          { text: '🎁 Claim Welcome NFT', callback_data: 'claim_nft' },
-          { text: '🚀 Open DuckChain Mini App', callback_data: 'go_miniapp' }
-        ]
-      ]
-    };
   }
 
   async selectQuestion(userId: number, questionId: string, language: string): Promise<{ message: string; keyboard: any }> {
@@ -220,23 +158,133 @@ class OnboardingService {
       };
     }
 
+    const questionText = getQuestionText(question, language);
+
     // Get AI response immediately
     const aiResponse = await this.openRouterService.getDuckChainResponse(
-      `Question: ${question.question}\nProvide a helpful response based on the official DuckChain documentation.`,
+      `Question: ${questionText}\nProvide a helpful response based on the official DuckChain documentation.`,
       language
     );
 
     return {
-      message: `🎯 **${question.question}**\n\n${aiResponse}`,
+      message: `🎯 *${questionText}*\n\n${aiResponse}`,
       keyboard: {
         inline_keyboard: [
           [
-            { text: '⏭️ Voltar às Perguntas', callback_data: 'back_to_questions' },
-            { text: '📱 Go to Mini App', callback_data: 'go_miniapp' }
+            { text: getTranslation('backToQuestionsButton', language), callback_data: 'back_to_questions' },
+            { text: getTranslation('goMiniAppButton', language), callback_data: 'go_miniapp' }
+          ],
+          [
+            { text: getTranslation('nftQuizButton', language), callback_data: 'start_nft_quiz' }
           ]
         ]
       }
     };
+  }
+
+  async startNFTQuiz(userId: number, language: string): Promise<{ message: string; keyboard: any }> {
+    const userState = this.userStates.get(userId);
+    if (!userState) {
+      return {
+        message: 'Session not found. Please start again.',
+        keyboard: null
+      };
+    }
+
+    // Generate a specific question based on DuckChain documentation
+    const quizPrompt = `Generate ONE specific question about DuckChain based ONLY on the official documentation. The question should be:
+1. Specific to DuckChain (not generic blockchain questions)
+2. Based on the documentation content
+3. Have a clear correct answer
+4. Be challenging but answerable
+
+Format: Return only the question, nothing else.`;
+
+    const quizQuestion = await this.openRouterService.getDuckChainResponse(quizPrompt, language);
+    
+    // Generate the correct answer
+    const answerPrompt = `Based on the DuckChain documentation, what is the correct answer to this question: "${quizQuestion}"
+
+Provide only the correct answer, nothing else.`;
+
+    const correctAnswer = await this.openRouterService.getDuckChainResponse(answerPrompt, language);
+    console.log('correctAnswer', correctAnswer);
+
+    // Update user state
+    userState.inQuiz = true;
+    userState.quizQuestion = quizQuestion;
+    userState.quizAnswer = correctAnswer;
+
+    return {
+      message: `${getTranslation('nftQuizTitle', language)}\n\n${quizQuestion}\n\n${getTranslation('nftQuizPrompt', language)}`,
+      keyboard: {
+        inline_keyboard: [
+          [
+            { text: getTranslation('backButton', language), callback_data: 'back_to_questions' },
+            { text: getTranslation('goMiniAppButton', language), callback_data: 'go_miniapp' }
+          ]
+        ]
+      }
+    };
+  }
+
+  async checkQuizAnswer(userId: number, userAnswer: string, language: string): Promise<{ message: string; keyboard: any; correct: boolean }> {
+    const userState = this.userStates.get(userId);
+    if (!userState || !userState.inQuiz || !userState.quizAnswer) {
+      return {
+        message: 'Quiz session not found.',
+        keyboard: null,
+        correct: false
+      };
+    }
+
+    // Check if answer is correct using AI
+    const checkPrompt = `Compare these two answers for a DuckChain question:
+
+User Answer: "${userAnswer}"
+Correct Answer: "${userState.quizAnswer}"
+
+Are they essentially the same or very similar in meaning? Respond with only "YES" or "NO".`;
+
+    const aiCheck = await this.openRouterService.getDuckChainResponse(checkPrompt, language);
+    const isCorrect = aiCheck.trim().toUpperCase().includes('YES');
+
+    // Reset quiz state
+    userState.inQuiz = false;
+    userState.quizQuestion = undefined;
+    userState.quizAnswer = undefined;
+
+    if (isCorrect) {
+      return {
+        message: `${getTranslation('nftQuizCorrect', language)}`,
+        keyboard: {
+          inline_keyboard: [
+            [
+              { text: getTranslation('nftQuizReceiveButton', language), callback_data: 'claim_nft' }
+            ],
+            [
+              { text: getTranslation('backButton', language), callback_data: 'back_to_questions' }
+            ]
+          ]
+        },
+        correct: true
+      };
+    } else {
+      return {
+        message: `${getTranslation('nftQuizIncorrect', language)} "${userState.quizAnswer}"\n\n${getTranslation('nftQuizTryAgain', language)}`,
+        keyboard: {
+          inline_keyboard: [
+            [
+              { text: getTranslation('nftQuizTryAgainButton', language), callback_data: 'start_nft_quiz' }
+            ],
+            [
+              { text: getTranslation('backButton', language), callback_data: 'back_to_questions' }
+            ]
+          ]
+        },
+        correct: false
+      };
+    }
   }
 
   getUserState(userId: number): UserOnboardingState | undefined {

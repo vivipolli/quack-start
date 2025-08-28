@@ -82,7 +82,7 @@ bot.action('beginner', async (ctx: Context) => {
   if (ctx.from) {
     const userId = ctx.from.id;
     const lang = userLanguages[userId] || 'EN';
-    const onboarding = onboardingService.startOnboarding(userId);
+    const onboarding = onboardingService.startOnboarding(userId, lang);
     await ctx.reply(onboarding.message, Markup.inlineKeyboard(onboarding.keyboard.inline_keyboard));
   }
 });
@@ -125,14 +125,16 @@ bot.action(/^select_question_(.+)$/, async (ctx: Context) => {
 bot.action('back_to_questions', async (ctx: Context) => {
   if (ctx.from) {
     const userId = ctx.from.id;
+    const lang = userLanguages[userId] || 'EN';
     const userState = onboardingService.getUserState(userId);
     if (userState) {
       const questions = onboardingService['questions'].filter((q: any) => q.category === userState.category);
       let message = `🎓 **DuckChain Onboarding - ${userState.category.charAt(0).toUpperCase() + userState.category.slice(1)} Level**\n\nEscolha uma pergunta:\n\n`;
       questions.forEach((question: any, index: number) => {
-        message += `${index + 1}. ${question.question}\n`;
+        const { getQuestionText } = require('./onboarding-questions');
+        message += `${index + 1}. ${getQuestionText(question, lang)}\n`;
       });
-      await ctx.reply(message, Markup.inlineKeyboard(onboardingService['getQuestionSelectionKeyboard'](questions).inline_keyboard));
+      await ctx.reply(message, Markup.inlineKeyboard(onboardingService['getQuestionSelectionKeyboard'](questions, lang).inline_keyboard));
     }
   }
 });
@@ -140,6 +142,7 @@ bot.action('back_to_questions', async (ctx: Context) => {
 bot.action('next_level', async (ctx: Context) => {
   if (ctx.from) {
     const userId = ctx.from.id;
+    const lang = userLanguages[userId] || 'EN';
     const userState = onboardingService.getUserState(userId);
     if (userState) {
       if (userState.category === 'basic') {
@@ -147,17 +150,19 @@ bot.action('next_level', async (ctx: Context) => {
         const questions = onboardingService['questions'].filter((q: any) => q.category === 'intermediate');
         let message = `🎯 **Intermediate Level**\n\nEscolha uma pergunta:\n\n`;
         questions.forEach((question: any, index: number) => {
-          message += `${index + 1}. ${question.question}\n`;
+          const { getQuestionText } = require('./onboarding-questions');
+          message += `${index + 1}. ${getQuestionText(question, lang)}\n`;
         });
-        await ctx.reply(message, Markup.inlineKeyboard(onboardingService['getQuestionSelectionKeyboard'](questions).inline_keyboard));
+        await ctx.reply(message, Markup.inlineKeyboard(onboardingService['getQuestionSelectionKeyboard'](questions, lang).inline_keyboard));
       } else if (userState.category === 'intermediate') {
         userState.category = 'advanced';
         const questions = onboardingService['questions'].filter((q: any) => q.category === 'advanced');
         let message = `🚀 **Advanced Level**\n\nEscolha uma pergunta:\n\n`;
         questions.forEach((question: any, index: number) => {
-          message += `${index + 1}. ${question.question}\n`;
+          const { getQuestionText } = require('./onboarding-questions');
+          message += `${index + 1}. ${getQuestionText(question, lang)}\n`;
         });
-        await ctx.reply(message, Markup.inlineKeyboard(onboardingService['getQuestionSelectionKeyboard'](questions).inline_keyboard));
+        await ctx.reply(message, Markup.inlineKeyboard(onboardingService['getQuestionSelectionKeyboard'](questions, lang).inline_keyboard));
       } else {
         userState.completed = true;
         onboardingService['userStates'].delete(userId);
@@ -167,6 +172,15 @@ bot.action('next_level', async (ctx: Context) => {
         ]));
       }
     }
+  }
+});
+
+bot.action('start_nft_quiz', async (ctx: Context) => {
+  if (ctx.from) {
+    const userId = ctx.from.id;
+    const lang = userLanguages[userId] || 'EN';
+    const result = await onboardingService.startNFTQuiz(userId, lang);
+    await ctx.reply(result.message, Markup.inlineKeyboard(result.keyboard.inline_keyboard));
   }
 });
 
@@ -236,12 +250,26 @@ bot.action('lang_HI', (ctx: Context) => {
   ]));
 });
 
-// Resposta com IA OpenRouter
+// Handle text messages
 bot.on('text', async (ctx: Context) => {
   if (ctx.message && 'text' in ctx.message && ctx.from) {
     const userMessage = ctx.message.text;
     const userId = ctx.from.id;
     const userLang = userLanguages[userId] || detectLanguage(userMessage);
+    
+    // Check if user is in quiz
+    const userState = onboardingService.getUserState(userId);
+    if (userState && userState.inQuiz) {
+      await ctx.replyWithChatAction('typing');
+      try {
+        const result = await onboardingService.checkQuizAnswer(userId, userMessage, userLang);
+        await ctx.reply(result.message, Markup.inlineKeyboard(result.keyboard.inline_keyboard));
+      } catch (error) {
+        console.error('Error in quiz:', error);
+        await ctx.reply('Sorry, there was an error. Please try again.');
+      }
+      return;
+    }
     
     // Check if user is in onboarding
     if (onboardingService.isInOnboarding(userId)) {

@@ -90,6 +90,76 @@ interface Translations {
     HI: string;
     default: string;
   };
+  nftQuizButton: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  nftQuizTitle: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  nftQuizPrompt: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  nftQuizCorrect: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  nftQuizIncorrect: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  nftQuizTryAgain: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  nftQuizReceiveButton: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  nftQuizTryAgainButton: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  backButton: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  backToQuestionsButton: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
   messageReceived: {
     PT: string;
     ES: string;
@@ -197,6 +267,76 @@ const translations: Translations = {
     EN: 'I received your message in English!',
     HI: 'मैंने आपका संदेश हिंदी में प्राप्त किया!',
     default: 'I received your message!'
+  },
+  nftQuizButton: {
+    PT: '🎁 Quer ganhar um NFT? Responda esse quiz!',
+    ES: '🎁 ¿Quieres ganar un NFT? ¡Responde este quiz!',
+    EN: '🎁 Want to win an NFT? Answer this quiz!',
+    HI: '🎁 NFT जीतना चाहते हैं? इस क्विज़ का जवाब दें!',
+    default: '🎁 Want to win an NFT? Answer this quiz!'
+  },
+  nftQuizTitle: {
+    PT: '🎁 **Quiz NFT - DuckChain**',
+    ES: '🎁 **Quiz NFT - DuckChain**',
+    EN: '🎁 **NFT Quiz - DuckChain**',
+    HI: '🎁 **NFT क्विज़ - DuckChain**',
+    default: '🎁 **NFT Quiz - DuckChain**'
+  },
+  nftQuizPrompt: {
+    PT: 'Digite sua resposta:',
+    ES: 'Escribe tu respuesta:',
+    EN: 'Type your answer:',
+    HI: 'अपना जवाब लिखें:',
+    default: 'Type your answer:'
+  },
+  nftQuizCorrect: {
+    PT: '🎉 **Parabéns! Resposta correta!**\n\nVocê ganhou um NFT! Clique no botão abaixo para receber:',
+    ES: '🎉 **¡Felicitaciones! ¡Respuesta correcta!**\n\n¡Ganaste un NFT! Haz clic en el botón de abajo para recibirlo:',
+    EN: '🎉 **Congratulations! Correct answer!**\n\nYou won an NFT! Click the button below to receive it:',
+    HI: '🎉 **बधाई हो! सही जवाब!**\n\nआपने NFT जीता! इसे प्राप्त करने के लिए नीचे दिए गए बटन पर क्लिक करें:',
+    default: '🎉 **Congratulations! Correct answer!**\n\nYou won an NFT! Click the button below to receive it:'
+  },
+  nftQuizIncorrect: {
+    PT: '❌ **Resposta incorreta!**\n\nA resposta correta era:',
+    ES: '❌ **¡Respuesta incorrecta!**\n\nLa respuesta correcta era:',
+    EN: '❌ **Incorrect answer!**\n\nThe correct answer was:',
+    HI: '❌ **गलत जवाब!**\n\nसही जवाब था:',
+    default: '❌ **Incorrect answer!**\n\nThe correct answer was:'
+  },
+  nftQuizTryAgain: {
+    PT: 'Tente novamente!',
+    ES: '¡Inténtalo de nuevo!',
+    EN: 'Try again!',
+    HI: 'फिर से कोशिश करें!',
+    default: 'Try again!'
+  },
+  nftQuizReceiveButton: {
+    PT: '🎁 Receber NFT',
+    ES: '🎁 Recibir NFT',
+    EN: '🎁 Receive NFT',
+    HI: '🎁 NFT प्राप्त करें',
+    default: '🎁 Receive NFT'
+  },
+  nftQuizTryAgainButton: {
+    PT: '🔄 Tentar Novamente',
+    ES: '🔄 Intentar de Nuevo',
+    EN: '🔄 Try Again',
+    HI: '🔄 फिर से कोशिश करें',
+    default: '🔄 Try Again'
+  },
+  backButton: {
+    PT: '⏭️ Voltar',
+    ES: '⏭️ Volver',
+    EN: '⏭️ Back',
+    HI: '⏭️ वापस',
+    default: '⏭️ Back'
+  },
+  backToQuestionsButton: {
+    PT: '⏭️ Voltar às Perguntas',
+    ES: '⏭️ Volver a las Preguntas',
+    EN: '⏭️ Back to Questions',
+    HI: '⏭️ प्रश्नों पर वापस जाएं',
+    default: '⏭️ Back to Questions'
   }
 };
 
