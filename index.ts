@@ -78,11 +78,20 @@ bot.action('later', (ctx: Context) => {
 });
 
 // Ações para onboarding
-bot.action('beginner', async (ctx: Context) => {
+bot.action('blockchain_beginner', async (ctx: Context) => {
   if (ctx.from) {
     const userId = ctx.from.id;
     const lang = userLanguages[userId] || 'EN';
-    const onboarding = onboardingService.startOnboarding(userId, lang);
+    const onboarding = onboardingService.startOnboarding(userId, 'blockchain_beginner', lang);
+    await ctx.reply(onboarding.message, Markup.inlineKeyboard(onboarding.keyboard.inline_keyboard));
+  }
+});
+
+bot.action('duckchain_new', async (ctx: Context) => {
+  if (ctx.from) {
+    const userId = ctx.from.id;
+    const lang = userLanguages[userId] || 'EN';
+    const onboarding = onboardingService.startOnboarding(userId, 'duckchain_new', lang);
     await ctx.reply(onboarding.message, Markup.inlineKeyboard(onboarding.keyboard.inline_keyboard));
   }
 });
@@ -129,7 +138,19 @@ bot.action('back_to_questions', async (ctx: Context) => {
     const userState = onboardingService.getUserState(userId);
     if (userState) {
       const questions = onboardingService['questions'].filter((q: any) => q.category === userState.category);
-      let message = `🎓 **DuckChain Onboarding - ${userState.category.charAt(0).toUpperCase() + userState.category.slice(1)} Level**\n\nEscolha uma pergunta:\n\n`;
+      const { getTranslation } = require('./translations');
+      
+      // Get the correct title based on current category
+      const getTitleKey = (category: string) => {
+        switch (category) {
+          case 'basic': return 'onboardingTitleBasic';
+          case 'intermediate': return 'onboardingTitleIntermediate';
+          case 'advanced': return 'onboardingTitleAdvanced';
+          default: return 'onboardingTitleBasic';
+        }
+      };
+
+      let message = `${getTranslation(getTitleKey(userState.category), lang)}\n\n${getTranslation('onboardingDescription', lang)}\n\n`;
       questions.forEach((question: any, index: number) => {
         const { getQuestionText } = require('./onboarding-questions');
         message += `${index + 1}. ${getQuestionText(question, lang)}\n`;
@@ -148,7 +169,7 @@ bot.action('next_level', async (ctx: Context) => {
       if (userState.category === 'basic') {
         userState.category = 'intermediate';
         const questions = onboardingService['questions'].filter((q: any) => q.category === 'intermediate');
-        let message = `🎯 **Intermediate Level**\n\nEscolha uma pergunta:\n\n`;
+        let message = `${getTranslation('onboardingTitleIntermediate', lang)}\n\n${getTranslation('onboardingDescription', lang)}\n\n`;
         questions.forEach((question: any, index: number) => {
           const { getQuestionText } = require('./onboarding-questions');
           message += `${index + 1}. ${getQuestionText(question, lang)}\n`;
@@ -157,7 +178,7 @@ bot.action('next_level', async (ctx: Context) => {
       } else if (userState.category === 'intermediate') {
         userState.category = 'advanced';
         const questions = onboardingService['questions'].filter((q: any) => q.category === 'advanced');
-        let message = `🚀 **Advanced Level**\n\nEscolha uma pergunta:\n\n`;
+        let message = `${getTranslation('onboardingTitleAdvanced', lang)}\n\n${getTranslation('onboardingDescription', lang)}\n\n`;
         questions.forEach((question: any, index: number) => {
           const { getQuestionText } = require('./onboarding-questions');
           message += `${index + 1}. ${getQuestionText(question, lang)}\n`;
@@ -166,9 +187,9 @@ bot.action('next_level', async (ctx: Context) => {
       } else {
         userState.completed = true;
         onboardingService['userStates'].delete(userId);
-        await ctx.reply('🎉 **Onboarding Complete!**\n\nYou\'re now ready to explore DuckChain!\n\n🎁 Click "Claim Welcome NFT" to receive your welcome NFT!', Markup.inlineKeyboard([
-          [Markup.button.callback('🎁 Claim Welcome NFT', 'claim_nft')],
-          [Markup.button.url('🚀 Open DuckChain Mini App', 'https://duckchain.app')]
+        await ctx.reply(getTranslation('onboardingComplete', lang), Markup.inlineKeyboard([
+          [Markup.button.callback(getTranslation('claimWelcomeNFT', lang), 'claim_nft')],
+          [Markup.button.url(getTranslation('openDuckChainMiniApp', lang), 'https://duckchain.app')]
         ]));
       }
     }
@@ -212,7 +233,8 @@ bot.action('lang_PT', (ctx: Context) => {
   }
   const lang = 'PT';
   ctx.reply(getTranslation('experienceQuestion', lang), Markup.inlineKeyboard([
-    Markup.button.callback(getTranslation('beginnerButton', lang), 'beginner'),
+    Markup.button.callback(getTranslation('blockchainBeginnerButton', lang), 'blockchain_beginner'),
+    Markup.button.callback(getTranslation('duckchainNewButton', lang), 'duckchain_new'),
     Markup.button.callback(getTranslation('experiencedButton', lang), 'experienced')
   ]));
 });
@@ -223,7 +245,8 @@ bot.action('lang_ES', (ctx: Context) => {
   }
   const lang = 'ES';
   ctx.reply(getTranslation('experienceQuestion', lang), Markup.inlineKeyboard([
-    Markup.button.callback(getTranslation('beginnerButton', lang), 'beginner'),
+    Markup.button.callback(getTranslation('blockchainBeginnerButton', lang), 'beginner'),
+    Markup.button.callback(getTranslation('duckchainNewButton', lang), 'duckchain_new'),
     Markup.button.callback(getTranslation('experiencedButton', lang), 'experienced')
   ]));
 });
@@ -234,7 +257,8 @@ bot.action('lang_EN', (ctx: Context) => {
   }
   const lang = 'EN';
   ctx.reply(getTranslation('experienceQuestion', lang), Markup.inlineKeyboard([
-    Markup.button.callback(getTranslation('beginnerButton', lang), 'beginner'),
+    Markup.button.callback(getTranslation('blockchainBeginnerButton', lang), 'blockchain_beginner'),
+    Markup.button.callback(getTranslation('duckchainNewButton', lang), 'duckchain_new'),
     Markup.button.callback(getTranslation('experiencedButton', lang), 'experienced')
   ]));
 });
@@ -245,7 +269,8 @@ bot.action('lang_HI', (ctx: Context) => {
   }
   const lang = 'HI';
   ctx.reply(getTranslation('experienceQuestion', lang), Markup.inlineKeyboard([
-    Markup.button.callback(getTranslation('beginnerButton', lang), 'beginner'),
+    Markup.button.callback(getTranslation('blockchainBeginnerButton', lang), 'blockchain_beginner'),
+    Markup.button.callback(getTranslation('duckchainNewButton', lang), 'duckchain_new'),
     Markup.button.callback(getTranslation('experiencedButton', lang), 'experienced')
   ]));
 });

@@ -13,6 +13,7 @@ A comprehensive Telegram bot for the DuckChain ecosystem, providing multilingual
 - **Multi-Level Education**: Basic, Intermediate, and Advanced levels
 - **Interactive Questions**: 15 curated questions about DuckChain
 - **AI Responses**: Real-time answers using OpenRouter AI service
+- **Adaptive Teaching Style**: AI adjusts language based on user experience level
 - **Documentation Integration**: AI context from official DuckChain documentation
 
 ### 🎁 NFT Quiz & Rewards
@@ -36,17 +37,28 @@ User starts bot → Welcome message → Language selection (PT/ES/EN/HI)
 
 ### 2. Experience Assessment
 ```
-Language selected → Experience question → Beginner/Experienced choice
+Language selected → Experience question → 3 experience levels:
+├── 🆕 Sou iniciante em blockchain
+├── 🦆 Sou novo na rede DuckChain
+└── 🚀 Já conheço
 ```
 
 ### 3. Onboarding Paths
 
-#### 🆕 Beginner Path
+#### 🆕 Blockchain Beginner Path
 ```
-Beginner selected → Multi-level onboarding:
-├── Basic Level (5 questions)
-├── Intermediate Level (5 questions)
-└── Advanced Level (5 questions)
+Blockchain beginner selected → Multi-level onboarding with didactic language:
+├── Basic Level (5 questions) - Very didactic explanations
+├── Intermediate Level (5 questions) - Didactic explanations
+└── Advanced Level (5 questions) - Technical explanations
+```
+
+#### 🦆 DuckChain New Path
+```
+DuckChain new selected → Multi-level onboarding with normal language:
+├── Basic Level (5 questions) - Standard explanations
+├── Intermediate Level (5 questions) - Standard explanations
+└── Advanced Level (5 questions) - Technical explanations
 ```
 
 #### 🚀 Experienced Path
@@ -56,7 +68,7 @@ Experienced selected → Direct to DuckChain Mini App
 
 ### 4. Question Interaction
 ```
-Question selected → AI generates response → User can:
+Question selected → AI generates response (adapted to user experience) → User can:
 ├── Ask another question
 ├── Go to next level
 ├── Access Mini App
@@ -91,10 +103,11 @@ Quiz button clicked → AI generates DuckChain-specific question → User answer
 - Easy maintenance and expansion
 
 #### `onboarding-service.ts` - Onboarding Logic
-- User state management
-- Question progression
-- AI integration
+- User state management with experience level tracking
+- Question progression through difficulty levels
+- AI integration with adaptive teaching styles
 - Quiz system coordination
+- Experience-based response customization
 
 #### `openrouter-service.ts` - AI Integration
 - OpenRouter API integration
@@ -188,6 +201,7 @@ The bot provides a complete educational experience in the user's preferred langu
 Leverages OpenRouter AI with DuckChain documentation context:
 - **Contextual Responses**: AI uses official documentation
 - **Multilingual AI**: Responses in user's language
+- **Adaptive Teaching**: Language adjusts based on user experience level
 - **Real-time Learning**: Immediate answers to questions
 
 ### NFT Quiz System
@@ -208,7 +222,7 @@ Economic and transparent NFT distribution:
 
 ### Starting the Bot
 ```
-/start → Language selection → Experience assessment → Onboarding
+/start → Language selection → Experience assessment (3 levels) → Onboarding with adapted AI responses
 ```
 
 ### Taking the Quiz
@@ -219,10 +233,37 @@ AI generates question → User answers → AI verifies → NFT reward
 
 ### Onboarding Flow
 ```
-Beginner → Basic questions → AI responses → 
+Experience Level Selection → 
+├── Blockchain Beginner → Didactic AI responses → 
+├── DuckChain New → Standard AI responses → 
+└── Experienced → Direct to Mini App
+
+Multi-level progression:
+Basic questions → AI responses → 
 Intermediate questions → AI responses → 
 Advanced questions → AI responses → Completion
 ```
+
+## 🎯 Adaptive AI Teaching System
+
+### Experience-Based Response Customization
+
+The bot intelligently adapts its teaching style based on user experience level:
+
+#### 🆕 Blockchain Beginners
+- **Didactic Language**: Step-by-step explanations with simple analogies
+- **Patient Approach**: Clear, educational tone for complete newcomers
+- **Basic & Intermediate Levels**: Very didactic responses
+- **Advanced Level**: Technical responses
+
+#### 🦆 DuckChain New Users
+- **Standard Language**: Direct explanations without excessive didacticism
+- **Network Focus**: Emphasis on DuckChain-specific features
+- **All Levels**: Standard technical responses
+
+#### 🚀 Experienced Users
+- **Direct Access**: Immediate redirect to DuckChain Mini App
+- **No Onboarding**: Skips educational content
 
 ## 🔮 Future Enhancements
 
@@ -231,6 +272,7 @@ Advanced questions → AI responses → Completion
 - **Enhanced AI**: More sophisticated question generation
 - **DeFi Integration**: Direct wallet interactions
 - **Community Features**: User interaction and gamification
+- **Personalized Learning Paths**: Customized question sequences
 
 ## 📄 License
 

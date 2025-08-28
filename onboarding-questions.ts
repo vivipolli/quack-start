@@ -27,44 +27,44 @@ const onboardingQuestions: OnboardingQuestion[] = [
     id: 'advantages',
     category: 'basic',
     question: {
-      PT: 'Quais são as vantagens de usar o DuckChain?',
-      ES: '¿Cuáles son las ventajas de usar DuckChain?',
-      EN: 'What are the advantages of using DuckChain?',
-      HI: 'DuckChain का उपयोग करने के क्या फायदे हैं?',
-      default: 'What are the advantages of using DuckChain?'
+      PT: 'Vantagens do DuckChain',
+      ES: 'Ventajas de DuckChain',
+      EN: 'DuckChain advantages',
+      HI: 'DuckChain के फायदे',
+      default: 'DuckChain advantages'
     }
   },
   {
     id: 'token_purpose',
     category: 'basic',
     question: {
-      PT: 'Qual é o propósito do token $DUCK?',
-      ES: '¿Cuál es el propósito del token $DUCK?',
-      EN: 'What is the purpose of the $DUCK token?',
-      HI: '$DUCK टोकन का उद्देश्य क्या है?',
-      default: 'What is the purpose of the $DUCK token?'
+      PT: 'Para que serve o token $DUCK?',
+      ES: '¿Para qué sirve el token $DUCK?',
+      EN: 'What is the $DUCK token for?',
+      HI: '$DUCK टोकन किस लिए है?',
+      default: 'What is the $DUCK token for?'
     }
   },
   {
     id: 'telegram_integration',
     category: 'basic',
     question: {
-      PT: 'Como o DuckChain se integra com o Telegram?',
-      ES: '¿Cómo se integra DuckChain con Telegram?',
-      EN: 'How does DuckChain integrate with Telegram?',
-      HI: 'DuckChain Telegram के साथ कैसे एकीकृत होता है?',
-      default: 'How does DuckChain integrate with Telegram?'
+      PT: 'Integração com Telegram',
+      ES: 'Integración con Telegram',
+      EN: 'Telegram integration',
+      HI: 'Telegram एकीकरण',
+      default: 'Telegram integration'
     }
   },
   {
     id: 'mass_adoption',
     category: 'basic',
     question: {
-      PT: 'Como o DuckChain permite a adoção em massa?',
-      ES: '¿Cómo permite DuckChain la adopción masiva?',
-      EN: 'How does DuckChain enable mass adoption?',
-      HI: 'DuckChain बड़े पैमाने पर अपनाने को कैसे सक्षम बनाता है?',
-      default: 'How does DuckChain enable mass adoption?'
+      PT: 'Como funciona a adoção em massa?',
+      ES: '¿Cómo funciona la adopción masiva?',
+      EN: 'How does mass adoption work?',
+      HI: 'बड़े पैमाने पर अपनाना कैसे काम करता है?',
+      default: 'How does mass adoption work?'
     }
   },
   
@@ -73,11 +73,11 @@ const onboardingQuestions: OnboardingQuestion[] = [
     id: 'create_wallet',
     category: 'intermediate',
     question: {
-      PT: 'Como criar uma carteira no DuckChain?',
-      ES: '¿Cómo crear una wallet en DuckChain?',
-      EN: 'How do I create a wallet on DuckChain?',
-      HI: 'DuckChain पर वॉलेट कैसे बनाएं?',
-      default: 'How do I create a wallet on DuckChain?'
+      PT: 'Como criar uma carteira?',
+      ES: '¿Cómo crear una wallet?',
+      EN: 'How to create a wallet?',
+      HI: 'वॉलेट कैसे बनाएं?',
+      default: 'How to create a wallet?'
     }
   },
   {
@@ -86,42 +86,42 @@ const onboardingQuestions: OnboardingQuestion[] = [
     question: {
       PT: 'Como criar e transferir NFTs?',
       ES: '¿Cómo crear y transferir NFTs?',
-      EN: 'How do I create and transfer NFTs?',
+      EN: 'How to create and transfer NFTs?',
       HI: 'NFT कैसे बनाएं और ट्रांसफर करें?',
-      default: 'How do I create and transfer NFTs?'
+      default: 'How to create and transfer NFTs?'
     }
   },
   {
     id: 'gas_fees',
     category: 'intermediate',
     question: {
-      PT: 'Como funcionam as taxas de gas no DuckChain?',
-      ES: '¿Cómo funcionan las tarifas de gas en DuckChain?',
-      EN: 'How do gas fees work on DuckChain?',
-      HI: 'DuckChain पर gas fees कैसे काम करती हैं?',
-      default: 'How do gas fees work on DuckChain?'
+      PT: 'Como funcionam as taxas de gas?',
+      ES: '¿Cómo funcionan las tarifas de gas?',
+      EN: 'How do gas fees work?',
+      HI: 'Gas fees कैसे काम करती हैं?',
+      default: 'How do gas fees work?'
     }
   },
   {
     id: 'staking',
     category: 'intermediate',
     question: {
-      PT: 'Como funciona o staking no DuckChain?',
-      ES: '¿Cómo funciona el staking en DuckChain?',
-      EN: 'How does staking work on DuckChain?',
-      HI: 'DuckChain पर staking कैसे काम करता है?',
-      default: 'How does staking work on DuckChain?'
+      PT: 'Como funciona o staking?',
+      ES: '¿Cómo funciona el staking?',
+      EN: 'How does staking work?',
+      HI: 'Staking कैसे काम करता है?',
+      default: 'How does staking work?'
     }
   },
   {
     id: 'governance',
     category: 'intermediate',
     question: {
-      PT: 'Como funciona a governança no DuckChain?',
-      ES: '¿Cómo funciona la gobernanza en DuckChain?',
-      EN: 'How does governance work on DuckChain?',
-      HI: 'DuckChain पर governance कैसे काम करता है?',
-      default: 'How does governance work on DuckChain?'
+      PT: 'Como funciona a governança?',
+      ES: '¿Cómo funciona la gobernanza?',
+      EN: 'How does governance work?',
+      HI: 'Governance कैसे काम करता है?',
+      default: 'How does governance work?'
     }
   },
   
@@ -130,55 +130,55 @@ const onboardingQuestions: OnboardingQuestion[] = [
     id: 'infrastructure',
     category: 'advanced',
     question: {
-      PT: 'Qual é a infraestrutura técnica do DuckChain?',
-      ES: '¿Cuál es la infraestructura técnica de DuckChain?',
-      EN: 'What is DuckChain\'s technical infrastructure?',
-      HI: 'DuckChain की तकनीकी बुनियादी ढांचा क्या है?',
-      default: 'What is DuckChain\'s technical infrastructure?'
+      PT: 'Infraestrutura técnica',
+      ES: 'Infraestructura técnica',
+      EN: 'Technical infrastructure',
+      HI: 'तकनीकी बुनियादी ढांचा',
+      default: 'Technical infrastructure'
     }
   },
   {
     id: 'ai_module',
     category: 'advanced',
     question: {
-      PT: 'Como funciona o Módulo de IA no DuckChain?',
-      ES: '¿Cómo funciona el Módulo de IA en DuckChain?',
-      EN: 'How does the AI Module work on DuckChain?',
-      HI: 'DuckChain पर AI Module कैसे काम करता है?',
-      default: 'How does the AI Module work on DuckChain?'
+      PT: 'Módulo de IA',
+      ES: 'Módulo de IA',
+      EN: 'AI Module',
+      HI: 'AI Module',
+      default: 'AI Module'
     }
   },
   {
     id: 'cross_chain',
     category: 'advanced',
     question: {
-      PT: 'Como funciona a interoperabilidade entre chains?',
-      ES: '¿Cómo funciona la interoperabilidad entre cadenas?',
-      EN: 'How does cross-chain interoperability work?',
-      HI: 'Cross-chain interoperability कैसे काम करती है?',
-      default: 'How does cross-chain interoperability work?'
+      PT: 'Interoperabilidade entre chains',
+      ES: 'Interoperabilidad entre cadenas',
+      EN: 'Cross-chain interoperability',
+      HI: 'Cross-chain interoperability',
+      default: 'Cross-chain interoperability'
     }
   },
   {
     id: 'security',
     category: 'advanced',
     question: {
-      PT: 'Quais recursos de segurança o DuckChain possui?',
-      ES: '¿Qué características de seguridad tiene DuckChain?',
-      EN: 'What security features does DuckChain have?',
-      HI: 'DuckChain में कौन सी सुरक्षा सुविधाएं हैं?',
-      default: 'What security features does DuckChain have?'
+      PT: 'Recursos de segurança',
+      ES: 'Características de seguridad',
+      EN: 'Security features',
+      HI: 'सुरक्षा सुविधाएं',
+      default: 'Security features'
     }
   },
   {
     id: 'developer_tools',
     category: 'advanced',
     question: {
-      PT: 'Quais ferramentas de desenvolvedor estão disponíveis no DuckChain?',
-      ES: '¿Qué herramientas de desarrollador están disponibles en DuckChain?',
-      EN: 'What developer tools are available on DuckChain?',
-      HI: 'DuckChain पर कौन से developer tools उपलब्ध हैं?',
-      default: 'What developer tools are available on DuckChain?'
+      PT: 'Ferramentas de desenvolvedor',
+      ES: 'Herramientas de desarrollador',
+      EN: 'Developer tools',
+      HI: 'Developer tools',
+      default: 'Developer tools'
     }
   }
 ];

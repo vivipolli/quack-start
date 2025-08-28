@@ -25,6 +25,7 @@ interface UserOnboardingState {
   userId: number;
   currentStep: number;
   category: 'basic' | 'intermediate' | 'advanced';
+  userType: 'blockchain_beginner' | 'duckchain_new' | 'experienced';
   completed: boolean;
   inQuiz?: boolean;
   quizQuestion?: string | undefined;
@@ -43,11 +44,12 @@ class OnboardingService {
     return onboardingQuestions;
   }
 
-  startOnboarding(userId: number, language: string = 'EN'): { message: string; keyboard: any } {
+  startOnboarding(userId: number, userType: 'blockchain_beginner' | 'duckchain_new' | 'experienced', language: string = 'EN'): { message: string; keyboard: any } {
     const userState: UserOnboardingState = {
       userId,
       currentStep: 0,
       category: 'basic',
+      userType,
       completed: false
     };
     
@@ -62,7 +64,7 @@ class OnboardingService {
       };
     }
     
-    let message = `🎓 ${getTranslation('onboardingTitle', language)}\n`;
+    let message = `🎓 ${getTranslation('onboardingTitleBasic', language)}\n`;
     
     basicQuestions.forEach((question, index) => {
       message += `${index + 1}. ${getQuestionText(question, language)}\n`;
@@ -84,16 +86,37 @@ class OnboardingService {
       };
     }
 
-    // Get AI response for the user's question
+    // Get AI response for the user's question with appropriate teaching style
+    let teachingStyle: string;
+    
+    if (userState.userType === 'blockchain_beginner' && (userState.category === 'basic' || userState.category === 'intermediate')) {
+      teachingStyle = 'Use a very didactic and educational language, as if teaching someone who is completely new to blockchain technology. Explain concepts step by step, use simple analogies when helpful, and be very patient and clear. However, always base your response on the official DuckChain documentation.';
+    } else {
+      teachingStyle = 'Provide a comprehensive response based on the official DuckChain documentation.';
+    }
+
     const aiResponse = await this.openRouterService.getDuckChainResponse(
-      `User question: ${answer}\nProvide a helpful response based on the official DuckChain documentation.`,
+      `User question: ${answer}\n\nTeaching style: ${teachingStyle}\n\nProvide a helpful response.`,
       language
     );
+
+    // Clean markdown formatting from AI response
+    const cleanAiResponse = aiResponse.replace(/[#*]/g, '');
 
     // Show the same question selection again
     const currentQuestions = this.questions.filter(q => q.category === userState.category);
     
-    let message = `${aiResponse}\n\n🎓 ${getTranslation('onboardingTitle', language)}\n\n${getTranslation('onboardingDescription', language)}\n\n`;
+    // Get the correct title based on current category
+    const getTitleKey = (category: string) => {
+      switch (category) {
+        case 'basic': return 'onboardingTitleBasic';
+        case 'intermediate': return 'onboardingTitleIntermediate';
+        case 'advanced': return 'onboardingTitleAdvanced';
+        default: return 'onboardingTitleBasic';
+      }
+    };
+
+    let message = `${cleanAiResponse}\n\n🎓 ${getTranslation(getTitleKey(userState.category), language)}\n\n${getTranslation('onboardingDescription', language)}\n\n`;
     currentQuestions.forEach((question, index) => {
       message += `${index + 1}. ${getQuestionText(question, language)}\n`;
     });
@@ -124,8 +147,13 @@ class OnboardingService {
     
     questions.forEach((question, index) => {
       const questionText = getQuestionText(question, language);
+      // Increase character limit and improve formatting
+      const buttonText = questionText.length > 50 
+        ? `${index + 1}. ${questionText.substring(0, 47)}...` 
+        : `${index + 1}. ${questionText}`;
+      
       keyboard.push([
-        { text: `${index + 1}. ${questionText.substring(0, 30)}...`, callback_data: `select_question_${question.id}` }
+        { text: buttonText, callback_data: `select_question_${question.id}` }
       ]);
     });
     
@@ -160,14 +188,25 @@ class OnboardingService {
 
     const questionText = getQuestionText(question, language);
 
-    // Get AI response immediately
+    // Get AI response with appropriate teaching style based on user type and category
+    let teachingStyle: string;
+    
+    if (userState.userType === 'blockchain_beginner' && (question.category === 'basic' || question.category === 'intermediate')) {
+      teachingStyle = 'Use a very didactic and educational language, as if teaching someone who is completely new to blockchain technology. Explain concepts step by step, use simple analogies when helpful, and be very patient and clear. However, always base your response on the official DuckChain documentation.';
+    } else {
+      teachingStyle = 'Provide a comprehensive response based on the official DuckChain documentation.';
+    }
+
     const aiResponse = await this.openRouterService.getDuckChainResponse(
-      `Question: ${questionText}\nProvide a helpful response based on the official DuckChain documentation.`,
+      `Question: ${questionText}\n\nTeaching style: ${teachingStyle}\n\nProvide a helpful response.`,
       language
     );
 
+    // Clean markdown formatting from AI response
+    const cleanAiResponse = aiResponse.replace(/[#*]/g, '');
+
     return {
-      message: `🎯 *${questionText}*\n\n${aiResponse}`,
+      message: `🎯 ${questionText}\n\n${cleanAiResponse}`,
       keyboard: {
         inline_keyboard: [
           [
@@ -208,15 +247,19 @@ Format: Return only the question, nothing else.`;
 Provide only the correct answer, nothing else.`;
 
     const correctAnswer = await this.openRouterService.getDuckChainResponse(answerPrompt, language);
-    console.log('correctAnswer', correctAnswer);
+    
+    // Clean markdown formatting from quiz question and answer
+    const cleanQuizQuestion = quizQuestion.replace(/[#*]/g, '');
+    const cleanCorrectAnswer = correctAnswer.replace(/[#*]/g, '');
+    console.log('correctAnswer', cleanCorrectAnswer);
 
     // Update user state
     userState.inQuiz = true;
-    userState.quizQuestion = quizQuestion;
-    userState.quizAnswer = correctAnswer;
+    userState.quizQuestion = cleanQuizQuestion;
+    userState.quizAnswer = cleanCorrectAnswer;
 
     return {
-      message: `${getTranslation('nftQuizTitle', language)}\n\n${quizQuestion}\n\n${getTranslation('nftQuizPrompt', language)}`,
+      message: `${getTranslation('nftQuizTitle', language)}\n\n${cleanQuizQuestion}\n\n${getTranslation('nftQuizPrompt', language)}`,
       keyboard: {
         inline_keyboard: [
           [

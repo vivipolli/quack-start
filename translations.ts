@@ -13,7 +13,14 @@ interface Translations {
     HI: string;
     default: string;
   };
-  beginnerButton: {
+  blockchainBeginnerButton: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  duckchainNewButton: {
     PT: string;
     ES: string;
     EN: string;
@@ -160,6 +167,55 @@ interface Translations {
     HI: string;
     default: string;
   };
+  onboardingTitleBasic: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  onboardingTitleIntermediate: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  onboardingTitleAdvanced: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  onboardingDescription: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  goMiniAppButton: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  skipQuestionButton: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  nextLevelButton: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
   messageReceived: {
     PT: string;
     ES: string;
@@ -178,25 +234,32 @@ const translations: Translations = {
     default: '🦆 Quack! Welcome to DuckChain!\n\nChoose your preferred language:\n\n🇧🇷 Português\n🇪🇸 Español\n🇺🇸 English\n🇮🇳 हिंदी'
   },
   experienceQuestion: {
-    PT: 'Você é iniciante na rede DuckChain ou já tem experiência?',
-    ES: '¿Eres principiante en la red DuckChain o ya tienes experiencia?',
-    EN: 'Are you a beginner in the DuckChain network or do you already have experience?',
-    HI: 'क्या आप DuckChain नेटवर्क में नौसिखिया हैं या आपको पहले से ही अनुभव है?',
-    default: 'Are you a beginner in the DuckChain network or do you already have experience?'
+    PT: 'Qual é o seu nível de conhecimento?',
+    ES: '¿Cuál es tu nivel de conocimiento?',
+    EN: 'What is your knowledge level?',
+    HI: 'आपका ज्ञान स्तर क्या है?',
+    default: 'What is your knowledge level?'
   },
-  beginnerButton: {
-    PT: '🆕 Sou Iniciante',
-    ES: '🆕 Soy Principiante',
-    EN: '🆕 I\'m a Beginner',
-    HI: '🆕 मैं नौसिखिया हूं',
-    default: '🆕 I\'m a Beginner'
+  blockchainBeginnerButton: {
+    PT: '🆕 Sou iniciante em blockchain',
+    ES: '🆕 Soy principiante en blockchain',
+    EN: '🆕 I\'m a blockchain beginner',
+    HI: '🆕 मैं blockchain में नौसिखिया हूं',
+    default: '🆕 I\'m a blockchain beginner'
+  },
+  duckchainNewButton: {
+    PT: '🦆 Sou novo na DuckChain',
+    ES: '🦆 Soy nuevo en DuckChain',
+    EN: '🦆 I\'m new to DuckChain',
+    HI: '🦆 मैं DuckChain नेटवर्क में नया हूं',
+    default: '🦆 I\'m new to DuckChain'
   },
   experiencedButton: {
-    PT: '🚀 Já Conheço',
-    ES: '🚀 Ya Conozco',
-    EN: '🚀 I Already Know',
+    PT: '🚀 Já conheço',
+    ES: '🚀 Ya conozco',
+    EN: '🚀 I already know',
     HI: '🚀 मैं पहले से जानता हूं',
-    default: '🚀 I Already Know'
+    default: '🚀 I already know'
   },
   goToMiniApp: {
     PT: '📱 Ir para Mini App',
@@ -337,6 +400,55 @@ const translations: Translations = {
     EN: '⏭️ Back to Questions',
     HI: '⏭️ प्रश्नों पर वापस जाएं',
     default: '⏭️ Back to Questions'
+  },
+  onboardingTitleBasic: {
+    PT: 'DuckChain Onboarding - Nível Básico',
+    ES: 'DuckChain Onboarding - Nivel Básico',
+    EN: 'DuckChain Onboarding - Basic Level',
+    HI: 'DuckChain Onboarding - बुनियादी स्तर',
+    default: 'DuckChain Onboarding - Basic Level'
+  },
+  onboardingTitleIntermediate: {
+    PT: 'DuckChain Onboarding - Nível Intermediário',
+    ES: 'DuckChain Onboarding - Nivel Intermedio',
+    EN: 'DuckChain Onboarding - Intermediate Level',
+    HI: 'DuckChain Onboarding - मध्यवर्ती स्तर',
+    default: 'DuckChain Onboarding - Intermediate Level'
+  },
+  onboardingTitleAdvanced: {
+    PT: 'DuckChain Onboarding - Nível Avançado',
+    ES: 'DuckChain Onboarding - Nivel Avanzado',
+    EN: 'DuckChain Onboarding - Advanced Level',
+    HI: 'DuckChain Onboarding - उन्नत स्तर',
+    default: 'DuckChain Onboarding - Advanced Level'
+  },
+  onboardingDescription: {
+    PT: 'Escolha uma pergunta para começar:',
+    ES: 'Elige una pregunta para comenzar:',
+    EN: 'Choose a question to start:',
+    HI: 'शुरू करने के लिए एक प्रश्न चुनें:',
+    default: 'Choose a question to start:'
+  },
+  goMiniAppButton: {
+    PT: '📱 Ir para Mini App',
+    ES: '📱 Ir a Mini App',
+    EN: '📱 Go to Mini App',
+    HI: '📱 मिनी ऐप पर जाएं',
+    default: '📱 Go to Mini App'
+  },
+  skipQuestionButton: {
+    PT: '⏭️ Pular Pergunta',
+    ES: '⏭️ Saltar Pregunta',
+    EN: '⏭️ Skip Question',
+    HI: '⏭️ प्रश्न छोड़ें',
+    default: '⏭️ Skip Question'
+  },
+  nextLevelButton: {
+    PT: '🚀 Próximo Nível',
+    ES: '🚀 Siguiente Nivel',
+    EN: '🚀 Next Level',
+    HI: '🚀 अगला स्तर',
+    default: '🚀 Next Level'
   }
 };
 
