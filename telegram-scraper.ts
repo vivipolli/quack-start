@@ -1,6 +1,6 @@
-const { TelegramClient } = require('telegram');
-const { StringSession } = require('telegram/sessions');
-const { OpenRouterService } = require('./openrouter-service');
+import { TelegramClient } from 'telegram';
+import { StringSession } from 'telegram/sessions';
+import { OpenRouterService } from './openrouter-service';
 
 interface ScrapedMessage {
   id: number;
@@ -25,7 +25,7 @@ interface ScrapingConfig {
   lastRun?: Date;
 }
 
-class TelegramScraper {
+export class TelegramScraper {
   private client: any;
   private openRouterService: any;
   private scrapedMessages: ScrapedMessage[] = [];
@@ -46,10 +46,9 @@ class TelegramScraper {
     );
     this.openRouterService = new OpenRouterService();
     
-    // Configuração padrão
     this.config = {
       enabled: false,
-      intervalHours: 168, // 7 dias (24 * 7)
+      intervalHours: 168, // 7 days
       messagesPerGroup: 500,
       groups: ['@DuckChain_io'],
     };
@@ -70,7 +69,7 @@ class TelegramScraper {
       const messages = await this.client.getMessages(groupUsername, { limit });
       
       const scrapedMessages: ScrapedMessage[] = messages
-        .filter((msg: any) => msg.message && msg.message.length > 10) // Filtrar mensagens muito curtas
+        .filter((msg: any) => msg.message && msg.message.length > 10)
         .map((msg: any) => ({
           id: msg.id,
           text: msg.message,
@@ -80,7 +79,6 @@ class TelegramScraper {
         }));
 
       this.scrapedMessages = scrapedMessages;
-      console.log(`📊 Scraped ${scrapedMessages.length} messages`);
       
       return scrapedMessages;
     } catch (error) {
@@ -91,15 +89,11 @@ class TelegramScraper {
 
   async analyzeQuestions(): Promise<QuestionAnalysis[]> {
     if (this.scrapedMessages.length === 0) {
-      console.log('⚠️ No messages to analyze');
       return [];
     }
 
-    console.log('🤖 Analyzing messages for questions...');
-
-    // Extrair perguntas usando regex
     const questionPatterns = [
-      /\?$/, // Termina com ?
+      /\?$/,
       /^(como|what|how|quando|when|onde|where|por que|why)/i, 
       /^(explique|explain|me diga|tell me)/i 
     ];
@@ -112,14 +106,11 @@ class TelegramScraper {
       .map(msg => msg.text);
 
     if (potentialQuestions.length === 0) {
-      console.log('⚠️ No questions found in messages');
       return [];
     }
 
-    // Enviar todas as perguntas para IA analisar frequência e categoria
     const analysis = await this.analyzeQuestionsWithAI(potentialQuestions);
 
-    console.log(`📈 Found ${analysis.length} relevant questions`);
     return analysis;
   }
 
@@ -131,7 +122,6 @@ class TelegramScraper {
         `${index + 1}. "${question}"`
       ).join('\n');
 
-      // PRIMEIRA CHAMADA: Selecionar perguntas mais frequentes
       const frequencyPrompt = `Analyze these messages from a Telegram group and identify the most frequently asked questions.
 
 Messages found:
@@ -148,8 +138,6 @@ Return ONLY the top 15 most frequently asked questions in JSON format:
   {"question": "How much is DUCK token worth?", "frequency": 8},
   {"question": "How do I bridge TON to DuckChain?", "frequency": 7}
 ]`;
-
-      console.log('🤖 Step 1: Analyzing question frequency...');
       let frequencyResponse = '';
       let retries = 0;
       const maxRetries = 3;
@@ -162,9 +150,7 @@ Return ONLY the top 15 most frequently asked questions in JSON format:
           break;
         } catch (error) {
           retries++;
-          console.log(`⚠️ Attempt ${retries}/${maxRetries} failed for frequency analysis`);
           if (retries >= maxRetries) {
-            console.error('❌ All retries failed for frequency analysis');
             return potentialQuestions.slice(0, 10).map((question) => ({
               question,
               frequency: 1,
@@ -172,7 +158,7 @@ Return ONLY the top 15 most frequently asked questions in JSON format:
               confidence: 0.8
             }));
           }
-          await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+          await new Promise(resolve => setTimeout(resolve, 2000));
         }
       }
 
@@ -180,12 +166,9 @@ Return ONLY the top 15 most frequently asked questions in JSON format:
       try {
         let cleanResponse = frequencyResponse.trim();
         
-        // Check if response is not JSON (like error messages)
         if (cleanResponse.toLowerCase().includes('desculpe') || 
             cleanResponse.toLowerCase().includes('error') ||
             cleanResponse.toLowerCase().includes('ocorreu um erro')) {
-          console.error('❌ AI returned error message instead of JSON');
-          console.log('Raw frequency response:', frequencyResponse);
           return potentialQuestions.slice(0, 10).map((question) => ({
             question,
             frequency: 1,
@@ -205,8 +188,6 @@ Return ONLY the top 15 most frequently asked questions in JSON format:
           frequentQuestions = parsed;
         }
       } catch (parseError) {
-        console.error('Error parsing frequency response:', parseError);
-        console.log('Raw frequency response:', frequencyResponse);
         return potentialQuestions.slice(0, 10).map((question) => ({
           question,
           frequency: 1,
@@ -216,7 +197,6 @@ Return ONLY the top 15 most frequently asked questions in JSON format:
       }
 
       if (frequentQuestions.length === 0) {
-        console.log('⚠️ No frequent questions found');
         return potentialQuestions.slice(0, 10).map((question) => ({
           question,
           frequency: 1,
@@ -224,8 +204,6 @@ Return ONLY the top 15 most frequently asked questions in JSON format:
           confidence: 0.8
         }));
       }
-
-      // SEGUNDA CHAMADA: Filtrar apenas perguntas educacionais sobre DuckChain
       const frequentQuestionsList = frequentQuestions.map((item, index) => 
         `${index + 1}. "${item.question}" (Frequency: ${item.frequency})`
       ).join('\n');
@@ -278,7 +256,6 @@ Return ONLY the top 5-8 most educational questions in JSON format:
 
 IMPORTANT: Rewrite and improve the questions to be professional, clear, and educational. Avoid informal language, slang, or abbreviations.`;
 
-      console.log('🤖 Step 2: Filtering educational questions...');
       let educationalResponse = '';
       retries = 0;
       
@@ -300,14 +277,13 @@ IMPORTANT: Rewrite and improve the questions to be professional, clear, and educ
               confidence: 0.8
             }));
           }
-          await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+          await new Promise(resolve => setTimeout(resolve, 2000));
         }
       }
 
       try {
         let cleanResponse = educationalResponse.trim();
         
-        // Check if response is not JSON (like error messages)
         if (cleanResponse.toLowerCase().includes('desculpe') || 
             cleanResponse.toLowerCase().includes('error') ||
             cleanResponse.toLowerCase().includes('ocorreu um erro')) {
@@ -338,7 +314,6 @@ IMPORTANT: Rewrite and improve the questions to be professional, clear, and educ
         }
       } catch (parseError) {
         console.error('Error parsing educational response:', parseError);
-        console.log('Raw educational response:', educationalResponse);
       }
 
       return frequentQuestions.slice(0, 8).map((item: any) => ({
@@ -373,23 +348,18 @@ IMPORTANT: Rewrite and improve the questions to be professional, clear, and educ
     console.log(`💾 Data saved to ${filename}`);
   }
 
-  // Métodos para scraping automático
   startAutoScraping(): void {
     if (this.config.enabled) {
-      console.log('🔄 Auto-scraping already running');
       return;
     }
 
     this.config.enabled = true;
-    console.log(`🤖 Starting auto-scraping every ${this.config.intervalHours} hours`);
 
-    // Executar imediatamente
     this.runScheduledScraping();
 
-    // Agendar execução periódica
     this.intervalId = setInterval(() => {
       this.runScheduledScraping();
-    }, this.config.intervalHours * 60 * 60 * 1000); // Converter horas para milissegundos
+    }, this.config.intervalHours * 60 * 60 * 1000);
   }
 
   stopAutoScraping(): void {
@@ -398,24 +368,18 @@ IMPORTANT: Rewrite and improve the questions to be professional, clear, and educ
       this.intervalId = undefined;
     }
     this.config.enabled = false;
-    console.log('⏹️ Auto-scraping stopped');
   }
 
   private async runScheduledScraping(): Promise<void> {
     try {
-      console.log('🕐 Running scheduled scraping...');
-      
-      // Conectar se necessário
       if (!this.client.connected) {
         await this.connect();
       }
 
-      // Scraping de todos os grupos configurados
       for (const group of this.config.groups) {
         await this.scrapeGroupMessages(group, this.config.messagesPerGroup);
       }
 
-      // Analisar e salvar
       const questions = await this.analyzeQuestions();
       await this.saveToFile(`duckchain-questions-${new Date().toISOString().split('T')[0]}.json`);
       
@@ -433,7 +397,6 @@ IMPORTANT: Rewrite and improve the questions to be professional, clear, and educ
 
   updateConfig(newConfig: Partial<ScrapingConfig>): void {
     this.config = { ...this.config, ...newConfig };
-    console.log('⚙️ Scraping configuration updated');
   }
 
   async disconnect(): Promise<void> {
@@ -443,15 +406,14 @@ IMPORTANT: Rewrite and improve the questions to be professional, clear, and educ
   }
 }
 
-// Exemplo de uso
-async function scrapeDuckChainQuestions() {
+export async function scrapeDuckChainQuestions() {
   const scraper = new TelegramScraper(
     parseInt(process.env.TELEGRAM_API_ID || '0'),
     process.env.TELEGRAM_API_HASH || '',
     process.env.TELEGRAM_SESSION_STRING || '',
     {
       enabled: true,
-      intervalHours: 168, // 7 days
+      intervalHours: 168,
       messagesPerGroup: 500,
       groups: ['@DuckChain_io'],
     }
@@ -460,23 +422,17 @@ async function scrapeDuckChainQuestions() {
   try {
     await scraper.connect();
     
-    // Iniciar scraping automático semanal
     scraper.startAutoScraping();
     
     console.log('🤖 Auto-scraping started! The scraper will run every 7 days.');
     console.log('📊 Check the generated JSON files for results.');
     
-    // Manter o processo rodando
     process.on('SIGINT', async () => {
-      console.log('\n🛑 Stopping auto-scraping...');
       await scraper.disconnect();
       process.exit(0);
     });
 
   } catch (error) {
-    console.error('❌ Error in scraping process:', error);
     await scraper.disconnect();
   }
 }
-
-module.exports = { TelegramScraper, scrapeDuckChainQuestions };

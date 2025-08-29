@@ -1,9 +1,8 @@
-const { translations } = require('./translations');
-const { onboardingQuestions, getQuestionText, getQuestionsByCategory } = require('./onboarding-questions');
-const fs = require('fs');
-const path = require('path');
+import { translations } from './translations';
+import { onboardingQuestions, getQuestionText } from './onboarding-questions';
+import * as fs from 'fs';
 
-function getTranslation(key: string, language: string): string {
+function getTranslation(key: keyof typeof translations, language: string): string {
   const translation = translations[key];
   if (!translation) {
     return key;
@@ -43,20 +42,16 @@ class OnboardingService {
   }
 
   private get questions(): OnboardingQuestion[] {
-    // Sempre incluir a pergunta fundamental sobre DuckChain
     const fundamentalQuestion = onboardingQuestions.find((q: OnboardingQuestion) => q.id === 'what_is_duckchain');
     
-    // Tentar carregar perguntas dinâmicas
     const dynamicQuestions = this.loadDynamicQuestions();
     
     if (dynamicQuestions.length > 0 && fundamentalQuestion) {
-      // Combinar pergunta fundamental com perguntas dinâmicas
       return [fundamentalQuestion, ...dynamicQuestions];
     } else if (dynamicQuestions.length > 0) {
       return dynamicQuestions;
     }
     
-    // Fallback para perguntas estáticas
     return onboardingQuestions;
   }
 
@@ -64,25 +59,25 @@ class OnboardingService {
 
   private loadDynamicQuestions(): OnboardingQuestion[] {
     try {
-      // Procurar pelo arquivo mais recente
       const files = fs.readdirSync('.').filter((file: string) => file.startsWith('duckchain-questions-') && file.endsWith('.json'));
       if (files.length === 0) {
         return [];
       }
       
-      // Pegar o arquivo mais recente
       const latestFile = files.sort().pop();
+      if (!latestFile) {
+        return [];
+      }
       const data = JSON.parse(fs.readFileSync(latestFile, 'utf8'));
       
-      // Converter para o formato OnboardingQuestion
       return data.questions.map((q: any, index: number) => ({
         id: `dynamic_${index}`,
         category: q.category,
         question: {
-          PT: q.question, // Será traduzido pela IA
-          ES: q.question, // Será traduzido pela IA
+          PT: q.question,
+          ES: q.question,
           EN: q.question,
-          HI: q.question, // Será traduzido pela IA
+          HI: q.question,
           default: q.question
         }
       }));
@@ -94,7 +89,7 @@ class OnboardingService {
 
   private async translateQuestion(question: string, language: string): Promise<string> {
     if (language === 'EN') {
-      return question; // Já está em inglês
+      return question;
     }
     
     try {
@@ -108,7 +103,7 @@ class OnboardingService {
       return translation.trim();
     } catch (error) {
       console.error('Error translating question:', error);
-      return question; // Fallback para original
+      return question;
     }
   }
 
@@ -134,7 +129,6 @@ class OnboardingService {
     
     let message = `🎓 ${getTranslation('onboardingTitleBasic', language)}\n`;
     
-    // Traduzir perguntas dinâmicas se necessário
     for (const question of basicQuestions) {
       if (question.id.startsWith('dynamic_')) {
         const translatedQuestion = await this.translateQuestion(question.question.EN, language);
@@ -162,7 +156,6 @@ class OnboardingService {
       };
     }
 
-    // Get AI response for the user's question with appropriate teaching style
     let teachingStyle: string;
     
     if (userState.userType === 'blockchain_beginner' && (userState.category === 'basic' || userState.category === 'intermediate')) {
@@ -176,13 +169,10 @@ class OnboardingService {
       language
     );
 
-    // Clean markdown formatting from AI response
     const cleanAiResponse = aiResponse.replace(/[#*]/g, '');
 
-    // Show the same question selection again
     const currentQuestions = this.questions.filter(q => q.category === userState.category);
     
-    // Get the correct title based on current category
     const getTitleKey = (category: string) => {
       switch (category) {
         case 'basic': return 'onboardingTitleBasic';
@@ -226,7 +216,6 @@ class OnboardingService {
     
     questions.forEach((question, index) => {
       const questionText = getQuestionText(question, language);
-      // Increase character limit and improve formatting
       const buttonText = questionText.length > 50 
         ? `${index + 1}. ${questionText.substring(0, 47)}...` 
         : `${index + 1}. ${questionText}`;
@@ -271,7 +260,6 @@ class OnboardingService {
 
     const questionText = getQuestionText(question, language);
 
-    // Get AI response with appropriate teaching style based on user type and category
     let teachingStyle: string;
     
     if (userState.userType === 'blockchain_beginner' && (question.category === 'basic' || question.category === 'intermediate')) {
@@ -285,7 +273,6 @@ class OnboardingService {
       language
     );
 
-    // Clean markdown formatting from AI response
     const cleanAiResponse = aiResponse.replace(/[#*]/g, '');
 
     return {
@@ -313,7 +300,6 @@ class OnboardingService {
       };
     }
 
-    // Generate a specific question based on DuckChain documentation
     const quizPrompt = `Generate ONE specific question about DuckChain based ONLY on the official documentation. The question should be:
 1. Specific to DuckChain (not generic blockchain questions)
 2. Based on the documentation content
@@ -324,19 +310,16 @@ Format: Return only the question, nothing else.`;
 
     const quizQuestion = await this.openRouterService.getDuckChainResponse(quizPrompt, language);
     
-    // Generate the correct answer
     const answerPrompt = `Based on the DuckChain documentation, what is the correct answer to this question: "${quizQuestion}"
 
 Provide only the correct answer, nothing else.`;
 
     const correctAnswer = await this.openRouterService.getDuckChainResponse(answerPrompt, language);
     
-    // Clean markdown formatting from quiz question and answer
     const cleanQuizQuestion = quizQuestion.replace(/[#*]/g, '');
     const cleanCorrectAnswer = correctAnswer.replace(/[#*]/g, '');
     console.log('correctAnswer', cleanCorrectAnswer);
 
-    // Update user state
     userState.inQuiz = true;
     userState.quizQuestion = cleanQuizQuestion;
     userState.quizAnswer = cleanCorrectAnswer;
@@ -367,7 +350,6 @@ Provide only the correct answer, nothing else.`;
       };
     }
 
-    // Check if answer is correct using AI
     const checkPrompt = `Compare these two answers for a DuckChain question:
 
 User Answer: "${userAnswer}"
@@ -378,7 +360,6 @@ Are they essentially the same or very similar in meaning? Respond with only "YES
     const aiCheck = await this.openRouterService.getDuckChainResponse(checkPrompt, language);
     const isCorrect = aiCheck.trim().toUpperCase().includes('YES');
 
-    // Reset quiz state
     userState.inQuiz = false;
     userState.quizQuestion = undefined;
     userState.quizAnswer = undefined;
@@ -428,4 +409,4 @@ Are they essentially the same or very similar in meaning? Respond with only "YES
   }
 }
 
-module.exports = { OnboardingService };
+export { OnboardingService };

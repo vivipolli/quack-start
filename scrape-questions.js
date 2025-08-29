@@ -5,7 +5,6 @@ async function main() {
   console.log('🦆 DuckChain Question Scraper');
   console.log('==============================\n');
 
-  // Verificar variáveis de ambiente
   const apiId = process.env.TELEGRAM_API_ID;
   const apiHash = process.env.TELEGRAM_API_HASH;
   const sessionString = process.env.TELEGRAM_SESSION_STRING;
@@ -30,7 +29,6 @@ async function main() {
   try {
     await scraper.connect();
     
-    // Grupos públicos do DuckChain
     const groups = [
       '@duckchain',
       '@duckchain_community', 
@@ -41,14 +39,13 @@ async function main() {
 
     for (const group of groups) {
       console.log(`📱 Scraping ${group}...`);
-      await scraper.scrapeGroupMessages(group, 300); // 300 mensagens por grupo
+      await scraper.scrapeGroupMessages(group, 300); 
       console.log(`✅ Completed ${group}\n`);
     }
 
     console.log('🤖 Analyzing questions...');
     const questions = await scraper.analyzeQuestions();
     
-    // Salvar resultados
     await scraper.saveToFile('duckchain-questions.json');
     
     console.log('\n🎯 Top 10 Most Frequent Questions:');
@@ -71,7 +68,6 @@ async function main() {
   }
 }
 
-// Executar se chamado diretamente
 if (require.main === module) {
   main().catch(console.error);
 }

@@ -293,9 +293,23 @@ interface Translations {
     HI: string;
     default: string;
   };
+  claimWelcomeNFT: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
+  openDuckChainMiniApp: {
+    PT: string;
+    ES: string;
+    EN: string;
+    HI: string;
+    default: string;
+  };
 }
 
-const translations: Translations = {
+export const translations: Translations = {
   welcome: {
     PT: '🦆 Quack! Bem-vindo ao DuckChain!\n\nEscolha seu idioma preferido:\n\n🇧🇷 Português\n🇪🇸 Español\n🇺🇸 English\n🇮🇳 हिंदी',
     ES: '🦆 ¡Quack! ¡Bienvenido a DuckChain!\n\nElige tu idioma preferido:\n\n🇧🇷 Português\n🇪🇸 Español\n🇺🇸 English\n🇮🇳 हिंदी',
@@ -589,7 +603,21 @@ const translations: Translations = {
     EN: '🤖 Checking answer...',
     HI: '🤖 उत्तर की जांच कर रहा है...',
     default: '🤖 Checking answer...'
+  },
+  claimWelcomeNFT: {
+    PT: '🎁 Receber NFT de Boas-vindas',
+    ES: '🎁 Recibir NFT de Bienvenida',
+    EN: '🎁 Claim Welcome NFT',
+    HI: '🎁 स्वागत NFT प्राप्त करें',
+    default: '🎁 Claim Welcome NFT'
+  },
+  openDuckChainMiniApp: {
+    PT: '🦆 Abrir Mini App DuckChain',
+    ES: '🦆 Abrir Mini App DuckChain',
+    EN: '🦆 Open DuckChain Mini App',
+    HI: '🦆 DuckChain मिनी ऐप खोलें',
+    default: '🦆 Open DuckChain Mini App'
   }
 };
 
-module.exports = { translations };
+

@@ -7,11 +7,11 @@ class CampanhaService {
     }
 
     /**
-     * Verifica se há campanha ativa (simulado - em produção seria do contrato)
+     * Verify if there is an active campaign (simulated - in production it would be verified in the contract)
      */
     getCampanhaAtiva() {
-        // Em produção, isso seria verificado no contrato
-        // Por enquanto, simula uma campanha ativa
+        // In production, this would be verified in the contract
+        // For now, simulate an active campaign
         return {
             id: "1",
             nome: "DuckChain Launch",
@@ -27,7 +27,7 @@ class CampanhaService {
     }
 
     /**
-     * Verifica se há campanha ativa
+     * Verify if there is an active campaign
      */
     getCampanhaAtiva() {
         for (const [id, campanha] of this.campanhas) {
@@ -39,29 +39,29 @@ class CampanhaService {
     }
 
     /**
-     * Verifica se usuário pode participar
+     * Verify if the user can participate
      */
     podeParticipar(userId) {
         const campanha = this.getCampanhaAtiva();
-        if (!campanha) return { pode: false, motivo: "Nenhuma campanha ativa" };
+        if (!campanha) return { pode: false, motivo: "No active campaign" };
         
         if (this.usuariosParticipantes.has(userId)) {
-            return { pode: false, motivo: "Você já participou desta campanha" };
+            return { pode: false, motivo: "You have already participated in this campaign" };
         }
 
         if (campanha.mintados >= campanha.totalNFTs) {
-            return { pode: false, motivo: "Campanha esgotada" };
+            return { pode: false, motivo: "Campaign sold out" };
         }
 
         if (new Date() > campanha.dataFim) {
-            return { pode: false, motivo: "Campanha expirada" };
+            return { pode: false, motivo: "Campaign expired" };
         }
 
         return { pode: true, campanha: campanha };
     }
 
     /**
-     * Processa participação na campanha
+     * Process participation in the campaign
      */
     async participarCampanha(userId) {
         const verificacao = this.podeParticipar(userId);
@@ -75,25 +75,25 @@ class CampanhaService {
 
         const campanha = verificacao.campanha;
         
-        // Marca usuário como participante
+        // Mark user as participant
         this.usuariosParticipantes.set(userId, {
             campanhaId: campanha.id,
             dataParticipacao: new Date()
         });
 
-        // Cria carteira para o usuário
+        // Create wallet for the user
         const carteira = await this.criarCarteira(userId);
 
         return {
             success: true,
             campanha: campanha,
             carteira: carteira,
-            message: `🎉 Participação confirmada na campanha "${campanha.nome}"!\n\n💼 Sua carteira: ${carteira.address}\n\n⏰ Aguarde o sorteio da raridade...`
+            message: `🎉 Participation confirmed in the campaign "${campanha.nome}"!\n\n💼 Your wallet: ${carteira.address}\n\n⏰ Wait for the rarity draw...`
         };
     }
 
     /**
-     * Cria uma carteira para o usuário
+    * Create a wallet for the user
      */
     async criarCarteira(userId) {
         const wallet = ethers.Wallet.createRandom();
@@ -104,14 +104,14 @@ class CampanhaService {
     }
 
     /**
-     * Retorna status da campanha atual
+     * Return the status of the current campaign
      */
     getStatusCampanha() {
         const campanha = this.getCampanhaAtiva();
         if (!campanha) {
             return {
                 ativa: false,
-                message: "Nenhuma campanha ativa no momento"
+                message: "No active campaign at the moment"
             };
         }
 
@@ -130,7 +130,7 @@ class CampanhaService {
     }
 
     /**
-     * Finaliza uma campanha
+     * Finalize a campaign
      */
     finalizarCampanha(campanhaId) {
         const campanha = this.campanhas.get(campanhaId);

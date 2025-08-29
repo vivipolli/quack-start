@@ -5,7 +5,6 @@ async function startAutoScraper() {
   console.log('🦆 DuckChain Auto-Scraper');
   console.log('========================\n');
 
-  // Verificar variáveis de ambiente
   const apiId = process.env.TELEGRAM_API_ID;
   const apiHash = process.env.TELEGRAM_API_HASH;
   const sessionString = process.env.TELEGRAM_SESSION_STRING;
@@ -21,7 +20,6 @@ async function startAutoScraper() {
     return;
   }
 
-  // Configuração do scraping automático
   const scraper = new TelegramScraper(
     parseInt(apiId),
     apiHash,
@@ -50,7 +48,6 @@ async function startAutoScraper() {
     console.log('📁 Results saved as: duckchain-questions-YYYY-MM-DD.json');
     console.log('⏹️  Press Ctrl+C to stop\n');
     
-    // Mostrar status inicial
     const status = scraper.getScrapingStatus();
     console.log('📊 Current Configuration:');
     console.log(`   - Interval: ${status.intervalHours} hours`);
@@ -58,7 +55,6 @@ async function startAutoScraper() {
     console.log(`   - Groups: ${status.groups.join(', ')}`);
     console.log(`   - Last run: ${status.lastRun || 'Never'}\n`);
     
-    // Manter o processo rodando
     process.on('SIGINT', async () => {
       console.log('\n🛑 Stopping auto-scraper...');
       await scraper.disconnect();
@@ -66,7 +62,6 @@ async function startAutoScraper() {
       process.exit(0);
     });
 
-    // Mostrar status a cada hora
     setInterval(() => {
       const currentStatus = scraper.getScrapingStatus();
       console.log(`⏰ Status check: Auto-scraping ${currentStatus.enabled ? 'active' : 'inactive'}`);
@@ -78,7 +73,6 @@ async function startAutoScraper() {
   }
 }
 
-// Executar se chamado diretamente
 if (require.main === module) {
   startAutoScraper().catch(console.error);
 }

@@ -1,24 +1,22 @@
 require('dotenv/config');
 const { Telegraf, Markup } = require('telegraf');
-const { translations } = require('./translations');
+import { translations } from './translations';
 const { OpenRouterService } = require('./openrouter-service');
 const { CampanhaService } = require('./sorteio-service');
 const { OnboardingService } = require('./onboarding-service');
 const { TelegramScraper } = require('./telegram-scraper');
 
-// Type imports for Telegraf
 import type { Context } from 'telegraf';
 
 const bot = new Telegraf(process.env.TELEGRAM_TOKEN as string, {
   telegram: {
-    timeout: 30000 // 30 segundos
+    timeout: 30000
   }
 });
 const openRouterService = new OpenRouterService();
 const campanhaService = new CampanhaService();
 const onboardingService = new OnboardingService(openRouterService);
 
-// Inicializar scraper automático
 let scraper: any = null;
 if (process.env.TELEGRAM_API_ID && process.env.TELEGRAM_API_HASH && process.env.TELEGRAM_SESSION_STRING) {
   scraper = new TelegramScraper(
@@ -27,17 +25,15 @@ if (process.env.TELEGRAM_API_ID && process.env.TELEGRAM_API_HASH && process.env.
     process.env.TELEGRAM_SESSION_STRING,
     {
       enabled: true,
-      intervalHours: 168, // 7 dias
+      intervalHours: 168,
       messagesPerGroup: 500,
-      groups: ['@DuckChain_io'] // Apenas a comunidade oficial
+      groups: ['@DuckChain_io']
     }
   );
 }
 
-// Armazenamento de preferências de idioma dos usuários
 const userLanguages: { [userId: number]: string } = {};
 
-// Função de detecção de idioma
 function detectLanguage(text: string): string {
   const langCode = franc(text);
   switch (langCode) {
@@ -49,67 +45,58 @@ function detectLanguage(text: string): string {
   }
 }
 
-// Dynamic import for franc-min
 let franc: any;
 (async () => {
   try {
     const francModule = await import('franc-min');
     franc = francModule.default || francModule;
   } catch (error) {
-    console.log('⚠️ franc-min not available, using default language detection');
-    franc = () => 'eng'; // Default to English
+    franc = () => 'eng';
   }
 })();
 
-// Helper function to get translation based on language
-function getTranslation(key: string, lang: string): string {
+function getTranslation(key: keyof typeof translations, lang: string): string {
   const translation = translations[key];
-  return translation[lang] || translation.default;
+  return (translation as any)[lang] || translation.default;
 }
-
-// Comando start
 bot.start((ctx: Context) => {
-  const lang = 'PT'; // Default to Portuguese for start command
-  ctx.reply(getTranslation('welcome', lang), Markup.inlineKeyboard([
-    Markup.button.callback('🇧🇷 Português', 'lang_PT'),
-    Markup.button.callback('🇪🇸 Español', 'lang_ES'),
-    Markup.button.callback('🇺🇸 English', 'lang_EN'),
-    Markup.button.callback('🇮🇳 हिंदी', 'lang_HI')
-  ]));
+  const lang = 'EN';
+  ctx.replyWithPhoto({ source: 'PATINHO.jpeg' }, { 
+    caption: getTranslation('welcome', lang),
+    reply_markup: Markup.inlineKeyboard([
+      Markup.button.callback('🇧🇷 Português', 'lang_PT'),
+      Markup.button.callback('🇪🇸 Español', 'lang_ES'),
+      Markup.button.callback('🇺🇸 English', 'lang_EN'),
+      Markup.button.callback('🇮🇳 हिंदी', 'lang_HI')
+    ]).reply_markup
+  });
 });
 
-// Comando para criar wallet
 bot.command('wallet', async (ctx: Context) => {
-  const lang = 'PT'; // Default to Portuguese for wallet command
+  const lang = 'EN';
   ctx.reply(getTranslation('walletQuestion', lang), Markup.inlineKeyboard([
     Markup.button.callback(getTranslation('yesButton', lang), 'create_wallet'),
     Markup.button.callback(getTranslation('laterButton', lang), 'later')
   ]));
 });
 
-// Ações dos botões
 bot.action('create_wallet', async (ctx: Context) => {
-  const lang = 'PT'; // Default to Portuguese for wallet actions
-  // Simulação de criação de wallet
+  const lang = 'EN';
   const walletAddress = '0x' + Math.random().toString(16).slice(2, 12) + '...';
   ctx.reply(getTranslation('walletCreated', lang) + walletAddress);
-
-  // Simulação de mint NFT
   ctx.reply(getTranslation('nftMinted', lang));
 });
 
 bot.action('later', (ctx: Context) => {
-  const lang = 'PT'; // Default to Portuguese for later action
+  const lang = 'EN';
   ctx.reply(getTranslation('walletLater', lang));
 });
 
-// Ações para onboarding
 bot.action('blockchain_beginner', async (ctx: Context) => {
   if (ctx.from) {
     const userId = ctx.from.id;
     const lang = userLanguages[userId] || 'EN';
     
-    // Mostrar loading
     await ctx.replyWithChatAction('typing');
     await ctx.reply(getTranslation('loadingPreparingQuestions', lang));
     
@@ -123,7 +110,6 @@ bot.action('duckchain_new', async (ctx: Context) => {
     const userId = ctx.from.id;
     const lang = userLanguages[userId] || 'EN';
     
-    // Mostrar loading
     await ctx.replyWithChatAction('typing');
     await ctx.reply(getTranslation('loadingPreparingQuestions', lang));
     
@@ -151,7 +137,6 @@ bot.action('skip_question', async (ctx: Context) => {
     const userId = ctx.from.id;
     const lang = userLanguages[userId] || 'EN';
     
-    // Mostrar loading
     await ctx.replyWithChatAction('typing');
     await ctx.reply(getTranslation('loadingPreparingNextQuestion', lang));
     
@@ -167,7 +152,6 @@ bot.action(/^select_question_(.+)$/, async (ctx: Context) => {
     if (callbackData) {
       const lang = userLanguages[userId] || 'EN';
       
-      // Mostrar loading
       await ctx.replyWithChatAction('typing');
       await ctx.reply(getTranslation('loadingGeneratingResponse', lang));
       
@@ -311,9 +295,9 @@ bot.action('lang_PT', (ctx: Context) => {
   }
   const lang = 'PT';
   ctx.reply(getTranslation('experienceQuestion', lang), Markup.inlineKeyboard([
-    Markup.button.callback(getTranslation('blockchainBeginnerButton', lang), 'blockchain_beginner'),
-    Markup.button.callback(getTranslation('duckchainNewButton', lang), 'duckchain_new'),
-    Markup.button.callback(getTranslation('experiencedButton', lang), 'experienced')
+    [Markup.button.callback(getTranslation('blockchainBeginnerButton', lang), 'blockchain_beginner')],
+    [Markup.button.callback(getTranslation('duckchainNewButton', lang), 'duckchain_new')],
+    [Markup.button.callback(getTranslation('experiencedButton', lang), 'experienced')]
   ]));
 });
 
@@ -323,9 +307,9 @@ bot.action('lang_ES', (ctx: Context) => {
   }
   const lang = 'ES';
   ctx.reply(getTranslation('experienceQuestion', lang), Markup.inlineKeyboard([
-    Markup.button.callback(getTranslation('blockchainBeginnerButton', lang), 'beginner'),
-    Markup.button.callback(getTranslation('duckchainNewButton', lang), 'duckchain_new'),
-    Markup.button.callback(getTranslation('experiencedButton', lang), 'experienced')
+    [Markup.button.callback(getTranslation('blockchainBeginnerButton', lang), 'beginner')],
+    [Markup.button.callback(getTranslation('duckchainNewButton', lang), 'duckchain_new')],
+    [Markup.button.callback(getTranslation('experiencedButton', lang), 'experienced')]
   ]));
 });
 
@@ -335,9 +319,9 @@ bot.action('lang_EN', (ctx: Context) => {
   }
   const lang = 'EN';
   ctx.reply(getTranslation('experienceQuestion', lang), Markup.inlineKeyboard([
-    Markup.button.callback(getTranslation('blockchainBeginnerButton', lang), 'blockchain_beginner'),
-    Markup.button.callback(getTranslation('duckchainNewButton', lang), 'duckchain_new'),
-    Markup.button.callback(getTranslation('experiencedButton', lang), 'experienced')
+    [Markup.button.callback(getTranslation('blockchainBeginnerButton', lang), 'blockchain_beginner')],
+    [Markup.button.callback(getTranslation('duckchainNewButton', lang), 'duckchain_new')],
+    [Markup.button.callback(getTranslation('experiencedButton', lang), 'experienced')]
   ]));
 });
 
@@ -347,9 +331,9 @@ bot.action('lang_HI', (ctx: Context) => {
   }
   const lang = 'HI';
   ctx.reply(getTranslation('experienceQuestion', lang), Markup.inlineKeyboard([
-    Markup.button.callback(getTranslation('blockchainBeginnerButton', lang), 'blockchain_beginner'),
-    Markup.button.callback(getTranslation('duckchainNewButton', lang), 'duckchain_new'),
-    Markup.button.callback(getTranslation('experiencedButton', lang), 'experienced')
+    [Markup.button.callback(getTranslation('blockchainBeginnerButton', lang), 'blockchain_beginner')],
+    [Markup.button.callback(getTranslation('duckchainNewButton', lang), 'duckchain_new')],
+    [Markup.button.callback(getTranslation('experiencedButton', lang), 'experienced')]
   ]));
 });
 
@@ -390,7 +374,7 @@ bot.on('text', async (ctx: Context) => {
     }
     
     // No AI response for general messages
-    const fallbackMessage = translations.messageReceived[userLang] || translations.messageReceived.default;
+    const fallbackMessage = (translations.messageReceived as any)[userLang] || translations.messageReceived.default;
     await ctx.reply(fallbackMessage);
   }
 });

@@ -1,12 +1,8 @@
-const fs = require('fs');
-const path = require('path');
+import * as fs from 'fs';
+import * as path from 'path';
 
-interface DocumentationSection {
-  name: string;
-  content: string;
-}
 
-class DocsService {
+export class DocsService {
   private docsPath: string;
   private documentation: Map<string, string> = new Map();
 
@@ -51,5 +47,3 @@ class DocsService {
     return Array.from(this.documentation.keys());
   }
 }
-
-module.exports = { DocsService };

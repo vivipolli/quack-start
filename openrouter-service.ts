@@ -1,4 +1,4 @@
-const { DocsService } = require('./docs-service');
+import { DocsService } from './docs-service';
 
 interface OpenRouterMessage {
   role: 'user' | 'assistant' | 'system';
@@ -13,7 +13,7 @@ interface OpenRouterResponse {
   }>;
 }
 
-class OpenRouterService {
+export class OpenRouterService {
   private apiKey: string;
   private baseUrl: string;
   private docsService: any;
@@ -45,14 +45,13 @@ class OpenRouterService {
       }
 
       const data: OpenRouterResponse = await response.json();
-      return data.choices[0]?.message?.content || 'Desculpe, não consegui processar sua mensagem.';
+      return data.choices[0]?.message?.content || 'Sorry, I could not process your message.';
     } catch (error) {
-      console.error('OpenRouter service error:', error);
-      return 'Desculpe, ocorreu um erro ao processar sua mensagem.';
+      return 'Sorry, an error occurred while processing your message.';
     }
   }
 
-  async getDuckChainResponse(userMessage: string, language: string = 'PT'): Promise<string> {
+  async getDuckChainResponse(userMessage: string, language: string = 'EN'): Promise<string> {
     const systemPrompt = this.getSystemPrompt(language);
     
     const messages: OpenRouterMessage[] = [
@@ -83,5 +82,3 @@ Focus on helping with DuckChain-specific questions and onboarding. Always be pol
     return prompt;
   }
 }
-
-module.exports = { OpenRouterService };

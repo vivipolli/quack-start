@@ -195,7 +195,7 @@ function getAllQuestions(): OnboardingQuestion[] {
   return onboardingQuestions;
 }
 
-module.exports = { 
+export { 
   onboardingQuestions, 
   getQuestionText, 
   getQuestionsByCategory, 
