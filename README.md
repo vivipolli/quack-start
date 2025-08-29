@@ -1,4 +1,4 @@
-# Duck Start Telegram Bot
+# Quack Start Telegram Bot
 
 <img src="patinho.png" width="200" alt="DuckChain Bot">
 

@@ -7,7 +7,7 @@ export class DocsService {
   private documentation: Map<string, string> = new Map();
 
   constructor() {
-    this.docsPath = path.join(__dirname, 'duckchain-docs');
+    this.docsPath = path.join(__dirname, '../../duckchain-docs');
     this.loadDocumentation();
   }
 

@@ -1,6 +1,7 @@
-import { translations } from './translations';
-import { onboardingQuestions, getQuestionText } from './onboarding-questions';
+import { translations } from '../../translations';
+import { onboardingQuestions, getQuestionText } from '../onboarding-questions';
 import * as fs from 'fs';
+import * as path from 'path';
 
 function getTranslation(key: keyof typeof translations, language: string): string {
   const translation = translations[key];
@@ -59,7 +60,13 @@ class OnboardingService {
 
   private loadDynamicQuestions(): OnboardingQuestion[] {
     try {
-      const files = fs.readdirSync('.').filter((file: string) => file.startsWith('duckchain-questions-') && file.endsWith('.json'));
+      const generatedQuestionsDir = path.join(__dirname, '../generated-questions');
+      
+      if (!fs.existsSync(generatedQuestionsDir)) {
+        return [];
+      }
+      
+      const files = fs.readdirSync(generatedQuestionsDir).filter((file: string) => file.startsWith('questions-') && file.endsWith('.json'));
       if (files.length === 0) {
         return [];
       }
@@ -68,7 +75,9 @@ class OnboardingService {
       if (!latestFile) {
         return [];
       }
-      const data = JSON.parse(fs.readFileSync(latestFile, 'utf8'));
+      
+      const filepath = path.join(generatedQuestionsDir, latestFile);
+      const data = JSON.parse(fs.readFileSync(filepath, 'utf8'));
       
       return data.questions.map((q: any, index: number) => ({
         id: `dynamic_${index}`,

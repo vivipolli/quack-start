@@ -1,4 +1,4 @@
-# 🦆 Duck Start Telegram Bot
+# 🦆 Quack Start Telegram Bot
 
 A comprehensive Telegram bot for the DuckChain ecosystem, providing multilingual onboarding, AI-powered education, and NFT rewards.
 

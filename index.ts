@@ -1,18 +1,14 @@
 require('dotenv/config');
-const { Telegraf, Markup } = require('telegraf');
+import { Telegraf, Markup } from 'telegraf';
 import { translations } from './translations';
-const { OpenRouterService } = require('./openrouter-service');
-const { CampanhaService } = require('./sorteio-service');
-const { OnboardingService } = require('./onboarding-service');
-const { TelegramScraper } = require('./telegram-scraper');
+import { OpenRouterService } from './src/services/openrouter-service';
+import { CampanhaService } from './src/services/nft-service';
+import { OnboardingService } from './src/services/onboarding-service';
+import { TelegramScraper } from './src/telegram-scraper';
 
 import type { Context } from 'telegraf';
 
-const bot = new Telegraf(process.env.TELEGRAM_TOKEN as string, {
-  telegram: {
-    timeout: 30000
-  }
-});
+const bot = new Telegraf(process.env.TELEGRAM_TOKEN as string);
 const openRouterService = new OpenRouterService();
 const campanhaService = new CampanhaService();
 const onboardingService = new OnboardingService(openRouterService);
@@ -166,7 +162,6 @@ bot.action('back_to_questions', async (ctx: Context) => {
     const userId = ctx.from.id;
     const lang = userLanguages[userId] || 'EN';
     
-    // Mostrar loading
     await ctx.replyWithChatAction('typing');
     await ctx.reply(getTranslation('loadingLoadingQuestions', lang));
     
@@ -174,7 +169,6 @@ bot.action('back_to_questions', async (ctx: Context) => {
     if (userState) {
       const questions = onboardingService['questions'].filter((q: any) => q.category === userState.category);
       
-      // Get the correct title based on current category
       const getTitleKey = (category: string) => {
         switch (category) {
           case 'basic': return 'onboardingTitleBasic';
@@ -186,7 +180,7 @@ bot.action('back_to_questions', async (ctx: Context) => {
 
       let message = `${getTranslation(getTitleKey(userState.category), lang)}\n\n${getTranslation('onboardingDescription', lang)}\n\n`;
       questions.forEach((question: any, index: number) => {
-        const { getQuestionText } = require('./onboarding-questions');
+        const { getQuestionText } = require('./src/onboarding-questions');
         message += `${index + 1}. ${getQuestionText(question, lang)}\n`;
       });
       await ctx.reply(message, Markup.inlineKeyboard(onboardingService['getQuestionSelectionKeyboard'](questions, lang).inline_keyboard));
@@ -199,7 +193,6 @@ bot.action('next_level', async (ctx: Context) => {
     const userId = ctx.from.id;
     const lang = userLanguages[userId] || 'EN';
     
-    // Mostrar loading
     await ctx.replyWithChatAction('typing');
     await ctx.reply(getTranslation('loadingLoadingNextLevel', lang));
     
@@ -210,17 +203,17 @@ bot.action('next_level', async (ctx: Context) => {
         const questions = onboardingService['questions'].filter((q: any) => q.category === 'intermediate');
         let message = `${getTranslation('onboardingTitleIntermediate', lang)}\n\n${getTranslation('onboardingDescription', lang)}\n\n`;
         questions.forEach((question: any, index: number) => {
-          const { getQuestionText } = require('./onboarding-questions');
+          const { getQuestionText } = require('./src/onboarding-questions');
           message += `${index + 1}. ${getQuestionText(question, lang)}\n`;
         });
         await ctx.reply(message, Markup.inlineKeyboard(onboardingService['getQuestionSelectionKeyboard'](questions, lang).inline_keyboard));
       } else if (userState.category === 'intermediate') {
         userState.category = 'advanced';
-        const { getQuestionsByCategory } = require('./onboarding-questions');
+        const { getQuestionsByCategory } = require('./src/onboarding-questions');
         const questions = getQuestionsByCategory('advanced');
         let message = `${getTranslation('onboardingTitleAdvanced', lang)}\n\n${getTranslation('onboardingDescription', lang)}\n\n`;
         questions.forEach((question: any, index: number) => {
-          const { getQuestionText } = require('./onboarding-questions');
+          const { getQuestionText } = require('./src/onboarding-questions');
           message += `${index + 1}. ${getQuestionText(question, lang)}\n`;
         });
         await ctx.reply(message, Markup.inlineKeyboard(onboardingService['getQuestionSelectionKeyboard'](questions, lang).inline_keyboard));
@@ -241,7 +234,6 @@ bot.action('start_nft_quiz', async (ctx: Context) => {
     const userId = ctx.from.id;
     const lang = userLanguages[userId] || 'EN';
     
-    // Mostrar loading
     await ctx.replyWithChatAction('typing');
     await ctx.reply(getTranslation('loadingGeneratingQuizQuestion', lang));
     
@@ -265,13 +257,11 @@ bot.action('claim_nft', async (ctx: Context) => {
   }
 });
 
-// Comando para verificar status da campanha
 bot.command('status', async (ctx: Context) => {
   const status = campanhaService.getStatusCampanha();
   ctx.reply(status.message);
 });
 
-// Comando para verificar status do scraping (apenas admin)
 bot.command('scraping', async (ctx: Context) => {
   if (scraper) {
     const status = scraper.getScrapingStatus();
@@ -288,7 +278,6 @@ bot.command('scraping', async (ctx: Context) => {
   }
 });
 
-// Ações para seleção de idioma
 bot.action('lang_PT', (ctx: Context) => {
   if (ctx.from) {
     userLanguages[ctx.from.id] = 'PT';
@@ -337,14 +326,12 @@ bot.action('lang_HI', (ctx: Context) => {
   ]));
 });
 
-// Handle text messages
 bot.on('text', async (ctx: Context) => {
   if (ctx.message && 'text' in ctx.message && ctx.from) {
     const userMessage = ctx.message.text;
     const userId = ctx.from.id;
     const userLang = userLanguages[userId] || detectLanguage(userMessage);
     
-    // Check if user is in quiz
     const userState = onboardingService.getUserState(userId);
     if (userState && userState.inQuiz) {
       await ctx.replyWithChatAction('typing');
@@ -359,7 +346,6 @@ bot.on('text', async (ctx: Context) => {
       return;
     }
     
-    // Check if user is in onboarding
     if (onboardingService.isInOnboarding(userId)) {
       await ctx.replyWithChatAction('typing');
       await ctx.reply(getTranslation('loadingGeneratingResponse', userLang));
@@ -373,13 +359,11 @@ bot.on('text', async (ctx: Context) => {
       return;
     }
     
-    // No AI response for general messages
     const fallbackMessage = (translations.messageReceived as any)[userLang] || translations.messageReceived.default;
     await ctx.reply(fallbackMessage);
   }
 });
 
-// Function to initialize auto scraper
 async function initializeAutoScraper() {
   console.log('🔍 Checking scraper configuration...');
   
@@ -394,7 +378,6 @@ async function initializeAutoScraper() {
       
       console.log('✅ Auto scraping started! It will run every 7 days.');
       
-      // Show initial status
       const status = scraper.getScrapingStatus();
       console.log('📊 Scraping Configuration:');
       console.log(`   - Interval: ${status.intervalHours} hours`);
@@ -411,7 +394,6 @@ async function initializeAutoScraper() {
   }
 }
 
-// Start the bot and scraper
 async function startServices() {
   const maxRetries = 3;
   let retryCount = 0;
@@ -421,16 +403,14 @@ async function startServices() {
       console.log(`🔄 Attempt ${retryCount + 1}/${maxRetries} to start services...`);
       console.log('📡 Connecting to Telegram Bot API...');
       
-      // Start bot
       await bot.launch();
       console.log('🤖 Bot started successfully!');
       
       console.log('🔍 Checking scraper configuration...');
-      // Initialize auto scraper
       await initializeAutoScraper();
       
       console.log('🚀 All services started successfully!');
-      break; // Success, exit retry loop
+      break;
       
     } catch (error: any) {
       retryCount++;
@@ -447,7 +427,6 @@ async function startServices() {
   }
 }
 
-// Health check server
 const http = require('http');
 const healthServer = http.createServer((req: any, res: any) => {
   if (req.url === '/health' || req.url === '/') {
@@ -468,11 +447,9 @@ const PORT = process.env.PORT || 3000;
 healthServer.listen(PORT, () => {
   console.log(`🏥 Health check server running on port ${PORT}`);
 });
-
-// Start services
+  
 startServices();
 
-// Graceful shutdown
 process.once('SIGINT', async () => {
   console.log('\n🛑 Shutting down services...');
   if (scraper) {

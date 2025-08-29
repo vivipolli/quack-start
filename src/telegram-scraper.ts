@@ -1,6 +1,6 @@
 import { TelegramClient } from 'telegram';
 import { StringSession } from 'telegram/sessions';
-import { OpenRouterService } from './openrouter-service';
+import { OpenRouterService } from './services/openrouter-service';
 
 interface ScrapedMessage {
   id: number;
@@ -338,14 +338,22 @@ IMPORTANT: Rewrite and improve the questions to be professional, clear, and educ
 
   async saveToFile(filename: string): Promise<void> {
     const fs = require('fs');
+    const path = require('path');
+    
+    const generatedQuestionsDir = path.join(__dirname, 'generated-questions');
+    if (!fs.existsSync(generatedQuestionsDir)) {
+      fs.mkdirSync(generatedQuestionsDir, { recursive: true });
+    }
+    
+    const filepath = path.join(generatedQuestionsDir, filename);
     const data = {
       scrapedAt: new Date().toISOString(),
       totalMessages: this.scrapedMessages.length,
       questions: await this.analyzeQuestions()
     };
 
-    fs.writeFileSync(filename, JSON.stringify(data, null, 2));
-    console.log(`💾 Data saved to ${filename}`);
+    fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
+    console.log(`💾 Data saved to ${filepath}`);
   }
 
   startAutoScraping(): void {
