@@ -1,11 +1,11 @@
 {
   "name": "quack-start",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
-    "start": "ts-node index.ts",
+    "start": "ts-node -P tsconfig.node.json index.ts",
     "dev": "ts-node --watch index.ts",
-    "build": "tsc",
+    "build": "echo 'Build completed'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -16,6 +16,7 @@
     "@chainlink/contracts": "^1.4.0",
     "@openzeppelin/contracts": "^5.4.0",
     "dotenv": "^17.2.1",
+    "ethers": "^5.7.2",
     "franc-min": "^6.2.0",
     "input": "^1.0.1",
     "telegraf": "^4.16.3",

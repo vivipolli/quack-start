@@ -52,8 +52,13 @@ function detectLanguage(text: string): string {
 // Dynamic import for franc-min
 let franc: any;
 (async () => {
-  const francModule = await import('franc-min');
-  franc = francModule;
+  try {
+    const francModule = await import('franc-min');
+    franc = francModule.default || francModule;
+  } catch (error) {
+    console.log('⚠️ franc-min not available, using default language detection');
+    franc = () => 'eng'; // Default to English
+  }
 })();
 
 // Helper function to get translation based on language
@@ -227,7 +232,8 @@ bot.action('next_level', async (ctx: Context) => {
         await ctx.reply(message, Markup.inlineKeyboard(onboardingService['getQuestionSelectionKeyboard'](questions, lang).inline_keyboard));
       } else if (userState.category === 'intermediate') {
         userState.category = 'advanced';
-        const questions = onboardingService.getAdvancedQuestions();
+        const { getQuestionsByCategory } = require('./onboarding-questions');
+        const questions = getQuestionsByCategory('advanced');
         let message = `${getTranslation('onboardingTitleAdvanced', lang)}\n\n${getTranslation('onboardingDescription', lang)}\n\n`;
         questions.forEach((question: any, index: number) => {
           const { getQuestionText } = require('./onboarding-questions');
@@ -456,6 +462,28 @@ async function startServices() {
     }
   }
 }
+
+// Health check server
+const http = require('http');
+const healthServer = http.createServer((req: any, res: any) => {
+  if (req.url === '/health' || req.url === '/') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      service: 'quack-start-bot',
+      uptime: process.uptime()
+    }));
+  } else {
+    res.writeHead(404);
+    res.end('Not Found');
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+healthServer.listen(PORT, () => {
+  console.log(`🏥 Health check server running on port ${PORT}`);
+});
 
 // Start services
 startServices();

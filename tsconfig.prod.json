@@ -1,0 +1,29 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "rootDir": "./",
+        "outDir": "./dist",
+        "module": "commonjs",
+        "target": "es2020",
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "sourceMap": false,
+        "declaration": false,
+        "declarationMap": false
+    },
+    "include": [
+        "index.ts",
+        "*.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "nft-contract",
+        "duckchain-docs",
+        "*.test.ts",
+        "*.spec.ts"
+    ]
+}

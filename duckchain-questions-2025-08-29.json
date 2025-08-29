@@ -1,0 +1,42 @@
+{
+  "scrapedAt": "2025-08-29T11:53:47.599Z",
+  "totalMessages": 306,
+  "questions": [
+    {
+      "question": "What is the current value of the DUCK token within the DuckChain ecosystem?",
+      "frequency": 3,
+      "category": "basic",
+      "confidence": 0.9
+    },
+    {
+      "question": "What is the process for bridging TON tokens to the DuckChain network?",
+      "frequency": 3,
+      "category": "intermediate",
+      "confidence": 0.8
+    },
+    {
+      "question": "What are the steps to acquire the $DUCK token?",
+      "frequency": 2,
+      "category": "basic",
+      "confidence": 0.9
+    },
+    {
+      "question": "What is the process for unstaking my tokens on the DuckChain platform?",
+      "frequency": 1,
+      "category": "intermediate",
+      "confidence": 0.7
+    },
+    {
+      "question": "Are there mainnet coins available to cover smart contract deployment fees on DuckChain?",
+      "frequency": 1,
+      "category": "intermediate",
+      "confidence": 0.6
+    },
+    {
+      "question": "How does the DuckChain ecosystem facilitate rewards for stakers?",
+      "frequency": 1,
+      "category": "basic",
+      "confidence": 0.8
+    }
+  ]
+}

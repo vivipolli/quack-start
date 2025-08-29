@@ -60,10 +60,7 @@ class OnboardingService {
     return onboardingQuestions;
   }
 
-  // Método específico para obter perguntas avançadas hardcoded
-  getAdvancedQuestions(): OnboardingQuestion[] {
-    return onboardingQuestions.filter((q: OnboardingQuestion) => q.category === 'advanced');
-  }
+
 
   private loadDynamicQuestions(): OnboardingQuestion[] {
     try {
