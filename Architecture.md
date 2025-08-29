@@ -47,9 +47,9 @@ User starts bot → Welcome message → Language selection (PT/ES/EN/HI)
 ### 2. Experience Assessment
 ```
 Language selected → Experience question → 3 experience levels:
-├── 🆕 Sou iniciante em blockchain
-├── 🦆 Sou novo na rede DuckChain
-└── 🚀 Já conheço
+├── 🆕 I'm a beginner in blockchain
+├── 🦆 I'm new to the DuckChain network
+└── 🚀 I already know it
 ```
 
 ### 3. Onboarding Paths
@@ -115,39 +115,41 @@ Quiz button clicked → AI generates DuckChain-specific question → User answer
 
 
 
-#### `telegram-scraper.ts` - Community Analysis
+#### `src/telegram-scraper.ts` - Community Analysis
 - Automatic Telegram group scraping
 - AI-powered question identification
 - Frequency and relevance analysis
 - Weekly scheduled execution
-- JSON data export for onboarding integration
+- JSON data export to `src/generated-questions/` for onboarding integration
 
-#### `onboarding-service.ts` - Onboarding Logic
+#### `src/services/onboarding-service.ts` - Onboarding Logic
 - User state management with experience level tracking
 - Question progression through difficulty levels
 - AI integration with adaptive teaching styles
 - Quiz system coordination
 - Experience-based response customization
-- Dynamic question loading from scraped data
+- Dynamic question loading from `src/generated-questions/`
 - Automatic question translation to user's language
 
-#### `openrouter-service.ts` - AI Integration
+#### `src/services/openrouter-service.ts` - AI Integration
 - OpenRouter API integration
 - DuckChain documentation context
 - Multilingual AI responses
 - Error handling and fallbacks
 
-#### `docs-service.ts` - Documentation Access
-- Local markdown file reading
+#### `src/services/docs-service.ts` - Documentation Access
+- Local markdown file reading from `duckchain-docs/`
 - DuckChain documentation integration
 - AI context generation
 - Structured content delivery
 
-#### `sorteio-service.js` - Campaign Management
+#### `src/services/nft-service.ts` - Campaign & NFT Management
 - NFT campaign simulation
 - User participation tracking
 - Campaign status management
 - Integration with smart contracts
+- Wallet creation and management
+- TypeScript implementation with proper interfaces
 
 ### Smart Contracts
 
@@ -162,27 +164,20 @@ Quiz button clicked → AI generates DuckChain-specific question → User answer
 
 ```
 quack-start/
-├── index.ts                 # Main bot controller
-├── translations.ts          # Multilingual translations
-├── onboarding-questions.ts  # Multilingual questions
-├── onboarding-service.ts    # Onboarding logic
-├── openrouter-service.ts    # AI integration
-├── docs-service.ts          # Documentation service
-├── telegram-scraper.ts      # Community scraping & analysis
-├── auto-scraper.js          # Automated scraping scheduler
-├── sorteio-service.js       # Campaign management
-├── package.json             # Dependencies
-├── tsconfig.json           # TypeScript config
-├── .env                    # Environment variables
-├── duckchain-docs/         # Documentation files
-│   ├── overview.md
-│   └── token.md
-├── duckchain-questions-*.json # Scraped community questions
-└── nft-contract/           # Smart contract
-    ├── contracts/
-    │   └── NFT-Reward.sol
-    ├── hardhat.config.js
-    └── README.md
+├── index.ts                    # Main bot controller & entry point
+├── translations.ts             # Multilingual system (PT/ES/EN/HI)
+├── src/
+│   ├── telegram-scraper.ts     # Community scraping & AI analysis
+│   ├── onboarding-questions.ts # Static onboarding questions
+│   ├── generated-questions/    # Dynamic questions from scraper
+│   └── services/
+│       ├── onboarding-service.ts    # Onboarding logic & user states
+│       ├── openrouter-service.ts    # AI integration (OpenRouter)
+│       ├── docs-service.ts          # Documentation context
+│       └── nft-service.ts           # NFT campaigns & rewards
+├── duckchain-docs/             # AI context documentation
+├── nft-contract/               # Smart contracts (ERC-721 + VRF)
+└── [config files]              # TypeScript, Railway, etc.
 ```
 
 ## 🔧 Setup & Installation
