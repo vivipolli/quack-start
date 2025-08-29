@@ -1,4 +1,4 @@
-# 🦆 DuckChain Telegram Bot
+# 🦆 Duck Start Telegram Bot
 
 A comprehensive Telegram bot for the DuckChain ecosystem, providing multilingual onboarding, AI-powered education, and NFT rewards.
 
@@ -90,6 +90,14 @@ Quiz button clicked → AI generates DuckChain-specific question → User answer
 ```
 
 ## 🛠 Technical Architecture
+
+### System Architecture
+
+#### **Onboarding Flow**
+![Onboarding Architecture](onboarding.png)
+
+#### **NFT Minting Process**
+![NFT Minting Flow](mint_nft.png)
 
 ### Core Services
 
@@ -319,7 +327,6 @@ The bot intelligently adapts its teaching style based on user experience level:
 - **Personalized Learning Paths**: Customized question sequences
 - **Real-time Scraping**: More frequent community analysis
 - **Sentiment Analysis**: Community mood and trending topics
-- **Cross-Platform Integration**: Discord and other community platforms
 
 ## 📄 License
 

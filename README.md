@@ -56,6 +56,8 @@ Our solution is built with modern and scalable technologies:
 - **Smart Contracts**: Chainlink VRF for transparent randomness
 - **Documentation Service**: Local markdown integration for AI context
 
+
+
 ### **User Flow**
 ```
 Welcome → Language Detection → Experience Assessment → 
